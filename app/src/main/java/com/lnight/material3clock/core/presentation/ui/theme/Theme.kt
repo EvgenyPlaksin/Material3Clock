@@ -1,4 +1,4 @@
-package com.lnight.material3clock.ui.theme
+package com.lnight.material3clock.core.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build
