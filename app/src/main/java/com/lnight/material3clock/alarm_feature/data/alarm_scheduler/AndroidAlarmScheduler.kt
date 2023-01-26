@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import com.lnight.material3clock.alarm_feature.AlarmReceiver
 import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
+import com.lnight.material3clock.core.ExtraKeys
+import java.time.Instant
+import java.time.ZoneId
 
 class AndroidAlarmScheduler(
     private val context: Context
@@ -15,7 +18,11 @@ class AndroidAlarmScheduler(
 
     override fun schedule(item: AlarmItem) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra("EXTRA_MESSAGE", item.label)
+            val dateTime = Instant.ofEpochSecond(item.timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            val time = "${dateTime.dayOfWeek.name} - ${dateTime.hour}:${dateTime.minute}:${dateTime.minute}"
+            putExtra(ExtraKeys.ALARM_LABEL, item.label)
+            putExtra(ExtraKeys.ALARM_TIME, time)
+            putExtra(ExtraKeys.ALARM_ID, item.id)
         }
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
