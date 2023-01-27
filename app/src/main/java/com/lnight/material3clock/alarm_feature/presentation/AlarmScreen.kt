@@ -59,7 +59,7 @@ fun AlarmScreen() {
                 alarmItem = AlarmItem(
                     timestamp = LocalDateTime.now()
                         .plusSeconds(secondsText.toLongOrNull() ?: 5).atZone(ZoneId.systemDefault()).toEpochSecond(),
-                    label = message,
+                    label = message.ifBlank { null },
                     isRepetitive = false,
                     isActive = true
                 )
