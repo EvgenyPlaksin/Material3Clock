@@ -27,8 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".alarm_feature.recievers.AlarmReceiver"/>
-        <receiver android:name=".alarm_feature.recievers.AlarmStopReceiver"/>
+        <receiver android:name=".alarm_feature.receivers.AlarmReceiver"/>
+        <receiver android:name=".alarm_feature.receivers.AlarmStopReceiver"/>
     </application>
 
 </manifest>

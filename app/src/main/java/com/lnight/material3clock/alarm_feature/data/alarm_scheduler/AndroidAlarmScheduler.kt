@@ -5,7 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
-import com.lnight.material3clock.alarm_feature.recievers.AlarmReceiver
+import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver
 import com.lnight.material3clock.core.ExtraKeys
 class AndroidAlarmScheduler(
     private val context: Context

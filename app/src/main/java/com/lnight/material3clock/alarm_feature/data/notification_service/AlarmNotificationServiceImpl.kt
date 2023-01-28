@@ -7,7 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 import com.lnight.material3clock.R
-import com.lnight.material3clock.alarm_feature.recievers.AlarmStopReceiver
+import com.lnight.material3clock.alarm_feature.receivers.AlarmStopReceiver
 import com.lnight.material3clock.core.ExtraKeys
 import com.lnight.material3clock.core.NotificationConstants
 import com.lnight.material3clock.core.presentation.MainActivity

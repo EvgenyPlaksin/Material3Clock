@@ -3,7 +3,9 @@ package com.lnight.material3clock.alarm_feature.data.repository
 import com.lnight.material3clock.alarm_feature.data.data_source.AlarmDao
 import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
 import com.lnight.material3clock.alarm_feature.domain.repository.AlarmRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class AlarmRepositoryImpl(
     private val dao: AlarmDao
@@ -14,14 +16,20 @@ class AlarmRepositoryImpl(
     }
 
     override suspend fun insertItem(item: AlarmItem) {
-        dao.insertAlarmItem(item)
+        withContext(Dispatchers.Default) {
+            dao.insertAlarmItem(item)
+        }
     }
 
     override suspend fun deleteItem(item: AlarmItem) {
-        dao.deleteAlarmItem(item)
+        withContext(Dispatchers.Default) {
+            dao.deleteAlarmItem(item)
+        }
     }
 
     override suspend fun getAlarmById(id: Int): AlarmItem? {
-        return dao.getAlarmById(id)
+        return withContext(Dispatchers.IO) {
+            dao.getAlarmById(id)
+        }
     }
 }
