@@ -60,7 +60,7 @@ fun AlarmScreen() {
                     timestamp = LocalDateTime.now()
                         .plusSeconds(secondsText.toLongOrNull() ?: 5).atZone(ZoneId.systemDefault()).toEpochSecond(),
                     label = message.ifBlank { null },
-                    isRepetitive = false,
+                    repeatDays = emptyList(),
                     isActive = true
                 )
                 alarmItem?.let(scheduler::schedule)

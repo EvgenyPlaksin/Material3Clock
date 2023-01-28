@@ -20,4 +20,8 @@ class AlarmRepositoryImpl(
     override suspend fun deleteItem(item: AlarmItem) {
         dao.deleteAlarmItem(item)
     }
+
+    override suspend fun getAlarmById(id: Int): AlarmItem? {
+        return dao.getAlarmById(id)
+    }
 }

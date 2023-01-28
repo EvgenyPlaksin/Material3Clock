@@ -9,6 +9,6 @@ data class AlarmItem(
     val id: Int = -1,
     val timestamp: Long,
     val label: String?,
-    val isRepetitive: Boolean,
+    val repeatDays: List<String>,
     val isActive: Boolean
 )

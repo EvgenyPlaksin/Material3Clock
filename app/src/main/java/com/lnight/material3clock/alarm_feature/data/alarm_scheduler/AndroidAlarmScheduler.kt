@@ -7,10 +7,6 @@ import android.content.Intent
 import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
 import com.lnight.material3clock.alarm_feature.recievers.AlarmReceiver
 import com.lnight.material3clock.core.ExtraKeys
-import java.time.Instant
-import java.time.ZoneId
-import java.util.*
-
 class AndroidAlarmScheduler(
     private val context: Context
 ) : AlarmScheduler {
@@ -19,13 +15,6 @@ class AndroidAlarmScheduler(
 
     override fun schedule(item: AlarmItem) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
-            val dateTime = Instant.ofEpochSecond(item.timestamp).atZone(ZoneId.systemDefault())
-                .toLocalDateTime()
-            val day = dateTime.dayOfWeek.name.lowercase().substring(0, 3)
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            val time = "$day - ${dateTime.hour}:${dateTime.minute}"
-            putExtra(ExtraKeys.ALARM_LABEL, item.label)
-            putExtra(ExtraKeys.ALARM_TIME, time)
             putExtra(ExtraKeys.ALARM_ID, item.id)
         }
         alarmManager.setExactAndAllowWhileIdle(
@@ -33,7 +22,7 @@ class AndroidAlarmScheduler(
             item.timestamp,
             PendingIntent.getBroadcast(
                 context,
-                item.hashCode(),
+                item.id,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
