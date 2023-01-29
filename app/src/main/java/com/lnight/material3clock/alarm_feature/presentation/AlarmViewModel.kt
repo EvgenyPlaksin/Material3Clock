@@ -52,7 +52,7 @@ class AlarmViewModel @Inject constructor(
                     alarmUseCases.insertAlarmUseCase(event.item.toAlarmItem())
                 }
             }
-            is AlarmsEvent.DeleteAlarmsSection -> {
+            is AlarmsEvent.OnDeleteClick -> {
                 viewModelScope.launch {
                     alarmUseCases.deleteAlarmUseCase(event.item.toAlarmItem()) // TODO snackbar
                 }
@@ -107,7 +107,7 @@ class AlarmViewModel @Inject constructor(
             }
             is AlarmsEvent.OnLabelClick -> {
                 viewModelScope.launch {
-                    _uiEvent.send(UiEvent.ShowChangeLabelDialog(event.label))
+                    _uiEvent.send(UiEvent.ShowChangeLabelDialog(event.item.label))
                 }
             }
             is AlarmsEvent.OnLabelChange -> {

@@ -31,12 +31,12 @@ import java.util.*
 @Composable
 fun Alarm(
     item: AlarmStateItem,
-    onLabelClick: (AlarmStateItem) -> Unit,
-    onDeleteClick: (AlarmStateItem) -> Unit,
-    onChangeTimeClick: (AlarmStateItem) -> Unit,
-    onAlarmClick: (AlarmStateItem) -> Unit,
-    onChangeIsActive: (AlarmStateItem) -> Unit,
-    onRepeatDaysChange: (AlarmStateItem, List<Day>) -> Unit,
+    onLabelClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onChangeTimeClick: () -> Unit,
+    onAlarmClick: () -> Unit,
+    onChangeIsActive: () -> Unit,
+    onRepeatDaysChange: (List<Day>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val textColor by animateColorAsState(
@@ -46,7 +46,7 @@ fun Alarm(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .clickable { onAlarmClick(item) }
+            .clickable { onAlarmClick() }
             .background(MaterialTheme.colorScheme.onSecondary)
     ) {
         Column(
@@ -67,7 +67,7 @@ fun Alarm(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onLabelClick(item) }
+                                .clickable { onLabelClick() }
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Label,
@@ -91,7 +91,7 @@ fun Alarm(
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .clickable { onAlarmClick(item) }
+                        .clickable { onAlarmClick() }
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
@@ -100,7 +100,7 @@ fun Alarm(
                 style = MaterialTheme.typography.headlineMedium,
                 color = textColor,
                 fontWeight = if (item.isDetailsVisible) FontWeight.Bold else FontWeight.ExtraBold,
-                modifier = Modifier.clickable { onChangeTimeClick(item) }
+                modifier = Modifier.clickable { onChangeTimeClick() }
             )
             Spacer(modifier = Modifier.width(12.dp))
             Row(
@@ -131,7 +131,7 @@ fun Alarm(
                 )
                 Switch(
                     checked = item.isActive,
-                    onCheckedChange = { onChangeIsActive(item) },
+                    onCheckedChange = { onChangeIsActive() },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.colorScheme.secondary,
                         checkedTrackColor = MaterialTheme.colorScheme.onPrimary
@@ -164,7 +164,7 @@ fun Alarm(
                                             item.repeatDays.forEach { day ->
                                                 if (it != day) newList.add(day)
                                             }
-                                            onRepeatDaysChange(item, newList)
+                                            onRepeatDaysChange(newList)
                                         }
                                         .padding(5.dp),
                                     contentAlignment = Alignment.Center
@@ -180,7 +180,7 @@ fun Alarm(
                         }
                         Spacer(modifier = Modifier.height(14.dp))
                         Row(
-                            modifier = Modifier.clickable { onDeleteClick(item) },
+                            modifier = Modifier.clickable { onDeleteClick() },
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
