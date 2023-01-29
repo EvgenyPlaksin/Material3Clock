@@ -10,7 +10,7 @@ import com.lnight.material3clock.R
 import com.lnight.material3clock.alarm_feature.receivers.AlarmStopReceiver
 import com.lnight.material3clock.core.ExtraKeys
 import com.lnight.material3clock.core.NotificationConstants
-import com.lnight.material3clock.core.presentation.MainActivity
+import com.lnight.material3clock.MainActivity
 
 class AlarmNotificationServiceImpl(
     private val context: Context

@@ -21,7 +21,9 @@ object AppModule {
             context,
             ClockDatabase::class.java,
             ClockDatabase.DATABASE_NAME
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
 }

@@ -1,4 +1,4 @@
-package com.lnight.material3clock.core.presentation.ui.theme
+package com.lnight.material3clock.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -57,7 +57,10 @@ fun Material3ClockTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = darkTheme
+                isAppearanceLightNavigationBars = true
+            }
         }
     }
 

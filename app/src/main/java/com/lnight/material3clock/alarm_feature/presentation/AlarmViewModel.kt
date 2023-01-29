@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
 import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
 import com.lnight.material3clock.core.toAlarmItem
+import com.lnight.material3clock.core.toAlarmStateItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -26,6 +27,10 @@ class AlarmViewModel @Inject constructor(
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        getAllAlarms()
+    }
 
     fun onEvent(event: AlarmsEvent) {
         when (event) {
@@ -117,6 +122,17 @@ class AlarmViewModel @Inject constructor(
                     val newAlarmItem = newItem.toAlarmItem()
                     alarmUseCases.insertAlarmUseCase(newAlarmItem)
                 }
+            }
+        }
+    }
+
+    private fun getAllAlarms() {
+        viewModelScope.launch {
+            alarmUseCases.getAlarmsUseCase().collect {
+                val alarmStateItems = it.map { alarm ->
+                    alarm.toAlarmStateItem()
+                }
+                state = state.copy(alarmStateItems = alarmStateItems)
             }
         }
     }
