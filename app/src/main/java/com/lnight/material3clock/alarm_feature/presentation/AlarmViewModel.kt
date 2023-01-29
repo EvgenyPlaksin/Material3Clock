@@ -68,6 +68,8 @@ class AlarmViewModel @Inject constructor(
                 val newList = state.alarmStateItems.map {
                     if (it == event.item) {
                         it.copy(isDetailsVisible = !it.isDetailsVisible)
+                    } else if(!event.item.isDetailsVisible) {
+                        it.copy(isDetailsVisible = false)
                     } else it
                 }
                 state = state.copy(alarmStateItems = newList)
@@ -78,6 +80,37 @@ class AlarmViewModel @Inject constructor(
                     val newList = state.alarmStateItems.map {
                         if (it == event.item) {
                             it.copy(isActive = !it.isActive)
+                        } else it
+                    }
+                    state = state.copy(alarmStateItems = newList)
+                    val newAlarmItem = newItem.toAlarmItem()
+                    alarmUseCases.insertAlarmUseCase(newAlarmItem)
+                }
+            }
+            is AlarmsEvent.ChangeAlarmTime -> {
+                viewModelScope.launch {
+                    val newItem = event.item.copy(dateTime = event.newTime)
+                    val newList = state.alarmStateItems.map {
+                        if (it == event.item) {
+                            it.copy(dateTime = event.newTime)
+                        } else it
+                    }
+                    state = state.copy(alarmStateItems = newList)
+                    val newAlarmItem = newItem.toAlarmItem()
+                    alarmUseCases.insertAlarmUseCase(newAlarmItem)
+                }
+            }
+            is AlarmsEvent.OnLabelClick -> {
+                viewModelScope.launch {
+                    _uiEvent.send(UiEvent.ShowChangeLabelDialog(event.label))
+                }
+            }
+            is AlarmsEvent.OnLabelChange -> {
+                viewModelScope.launch {
+                    val newItem = event.item.copy(label = event.label.ifBlank { null })
+                    val newList = state.alarmStateItems.map {
+                        if (it == event.item) {
+                            it.copy(label = event.label.ifBlank { null })
                         } else it
                     }
                     state = state.copy(alarmStateItems = newList)

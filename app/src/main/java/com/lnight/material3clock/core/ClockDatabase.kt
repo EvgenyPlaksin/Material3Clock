@@ -8,7 +8,7 @@ import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
 
 @Database(
     entities = [AlarmItem::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

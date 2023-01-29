@@ -7,7 +7,7 @@ import android.content.Intent
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
 import com.lnight.material3clock.alarm_feature.data.notification_service.AlarmNotificationService
 import com.lnight.material3clock.alarm_feature.domain.repository.AlarmRepository
-import com.lnight.material3clock.core.Days
+import com.lnight.material3clock.core.Day
 import com.lnight.material3clock.core.ExtraKeys
 import com.lnight.material3clock.core.goAsync
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,14 +46,17 @@ class AlarmReceiver : BroadcastReceiver() {
 
             if (alarm.repeatDays.isEmpty()) {
                 repository.insertItem(
-                    item = alarm.copy(isActive = false)
+                    item = alarm.copy(
+                        isActive = false,
+                        nextDay = null
+                    )
                 )
             } else {
                 val currentDayIndex = alarm.repeatDays.indexOf(dateTime.dayOfWeek.name)
                 val nextDay = alarm.repeatDays.elementAt(currentDayIndex + 1)
                 var currentDayInWeek = -1
                 var nextDayInWeek = -1
-                Days.values().forEachIndexed { index, dayEnum ->
+                Day.values().forEachIndexed { index, dayEnum ->
                     if (dateTime.dayOfWeek.name == dayEnum.name) currentDayInWeek = index + 1
                     if (nextDay == dayEnum.name) nextDayInWeek = index + 1
                 }
@@ -69,7 +72,10 @@ class AlarmReceiver : BroadcastReceiver() {
 
                 val timestamp =
                     dateTime.plusDays(daysAmount).atZone(ZoneId.systemDefault()).toEpochSecond()
-                val item = alarm.copy(timestamp = timestamp)
+                val item = alarm.copy(
+                    timestamp = timestamp,
+                    nextDay = nextDay
+                )
                 scheduler.schedule(item)
                 repository.insertItem(item)
             }

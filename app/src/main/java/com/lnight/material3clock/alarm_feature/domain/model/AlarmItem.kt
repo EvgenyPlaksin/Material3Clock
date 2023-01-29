@@ -10,5 +10,6 @@ data class AlarmItem(
     val timestamp: Long,
     val label: String?,
     val repeatDays: List<String>,
-    val isActive: Boolean
+    val isActive: Boolean,
+    val nextDay: String?
 )

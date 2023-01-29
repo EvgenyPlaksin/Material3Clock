@@ -33,6 +33,7 @@ fun AlarmStateItem.toAlarmItem(): AlarmItem {
         timestamp = dateTime.atZone(ZoneId.systemDefault()).toEpochSecond(),
         label = label,
         repeatDays = newDays,
-        isActive = isActive
+        isActive = isActive,
+        nextDay = nextDay?.name
     )
 }
