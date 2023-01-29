@@ -1,5 +1,6 @@
 package com.lnight.material3clock.alarm_feature.data.alarm_scheduler
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -13,6 +14,7 @@ class AndroidAlarmScheduler(
 
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
+    @SuppressLint("MissingPermission")
     override fun schedule(item: AlarmItem) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra(ExtraKeys.ALARM_ID, item.id)

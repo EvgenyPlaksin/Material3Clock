@@ -50,6 +50,7 @@ class AlarmViewModel @Inject constructor(
             is AlarmsEvent.CreateAlarm -> {
                 viewModelScope.launch {
                     alarmUseCases.insertAlarmUseCase(event.item.toAlarmItem())
+                    alarmScheduler.schedule(event.item.toAlarmItem())
                 }
             }
             is AlarmsEvent.OnDeleteClick -> {

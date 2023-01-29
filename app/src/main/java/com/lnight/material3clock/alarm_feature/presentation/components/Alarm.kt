@@ -1,6 +1,7 @@
 package com.lnight.material3clock.alarm_feature.presentation.components
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import com.lnight.material3clock.alarm_feature.presentation.AlarmStateItem
 import com.lnight.material3clock.core.Day
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.math.roundToInt
 
 @Composable
 fun Alarm(
@@ -67,7 +69,8 @@ fun Alarm(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onLabelClick() }
+                                .clickable { onLabelClick() },
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Label,
@@ -78,7 +81,7 @@ fun Alarm(
                             Text(
                                 text = "Add label",
                                 fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.surfaceTint
+                                color = Color(0xFF858585)
                             )
                         }
                     }
@@ -99,7 +102,7 @@ fun Alarm(
                 text = "${item.dateTime.hour}:${item.dateTime.minute}",
                 style = MaterialTheme.typography.headlineMedium,
                 color = textColor,
-                fontWeight = if (item.isDetailsVisible) FontWeight.Bold else FontWeight.ExtraBold,
+                fontWeight = FontWeight(if(item.isActive) 800 else 500),
                 modifier = Modifier.clickable { onChangeTimeClick() }
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -134,8 +137,17 @@ fun Alarm(
                     onCheckedChange = { onChangeIsActive() },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.colorScheme.secondary,
-                        checkedTrackColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                        checkedTrackColor = MaterialTheme.colorScheme.onPrimary,
+                        uncheckedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    thumbContent = {
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondary)
+                                    .size(30.dp)
+                            )
+                    }
                 )
             }
                 AnimatedVisibility(
