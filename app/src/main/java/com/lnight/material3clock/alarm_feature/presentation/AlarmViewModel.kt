@@ -11,6 +11,8 @@ import com.lnight.material3clock.core.toAlarmItem
 import com.lnight.material3clock.core.toAlarmStateItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -20,13 +22,15 @@ import javax.inject.Inject
 class AlarmViewModel @Inject constructor(
     private val alarmUseCases: AlarmUseCases,
     private val alarmScheduler: AlarmScheduler
-): ViewModel() {
+) : ViewModel() {
 
     var state by mutableStateOf(AlarmState())
         private set
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    private var shouldUpdateState = true
 
     init {
         getAllAlarms()
@@ -36,10 +40,16 @@ class AlarmViewModel @Inject constructor(
         when (event) {
             is AlarmsEvent.ChangeAlarmRepeat -> {
                 viewModelScope.launch {
-                    val newItem = event.item.copy(repeatDays = event.repeatDays)
+                    val newItem = event.item.copy(
+                        repeatDays = event.repeatDays,
+                        nextDay = event.repeatDays.firstOrNull()
+                    )
                     val newList = state.alarmStateItems.map {
                         if (it == event.item) {
-                            it.copy(repeatDays = event.repeatDays)
+                            it.copy(
+                                repeatDays = event.repeatDays,
+                                nextDay = event.repeatDays.firstOrNull()
+                            )
                         } else it
                     }
                     state = state.copy(alarmStateItems = newList)
@@ -64,7 +74,7 @@ class AlarmViewModel @Inject constructor(
                     _uiEvent.send(UiEvent.ShowTimePickerDialog(time))
                 }
             }
-            AlarmsEvent.OnAlarmTimeClick ->  {
+            AlarmsEvent.OnAlarmTimeClick -> {
                 viewModelScope.launch {
                     val time = LocalTime.now()
                     _uiEvent.send(UiEvent.ShowTimePickerDialog(time))
@@ -74,7 +84,7 @@ class AlarmViewModel @Inject constructor(
                 val newList = state.alarmStateItems.map {
                     if (it == event.item) {
                         it.copy(isDetailsVisible = !it.isDetailsVisible)
-                    } else if(!event.item.isDetailsVisible) {
+                    } else if (!event.item.isDetailsVisible) {
                         it.copy(isDetailsVisible = false)
                     } else it
                 }
@@ -128,13 +138,15 @@ class AlarmViewModel @Inject constructor(
     }
 
     private fun getAllAlarms() {
-        viewModelScope.launch {
-            alarmUseCases.getAlarmsUseCase().collect {
-                val alarmStateItems = it.map { alarm ->
-                    alarm.toAlarmStateItem()
-                }
-                state = state.copy(alarmStateItems = alarmStateItems)
+        alarmUseCases.getAlarmsUseCase().onEach { alarms ->
+            if (shouldUpdateState) {
+                val alarmsState = alarms.map { it.toAlarmStateItem() }
+                state = state.copy(
+                    alarmStateItems = alarmsState
+                )
+                shouldUpdateState = false
             }
-        }
+        }.launchIn(viewModelScope)
     }
+
 }

@@ -1,7 +1,7 @@
 package com.lnight.material3clock.alarm_feature.presentation.components
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.ArrowCircleUp
@@ -19,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +30,6 @@ import com.lnight.material3clock.alarm_feature.presentation.AlarmStateItem
 import com.lnight.material3clock.core.Day
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.math.roundToInt
 
 @Composable
 fun Alarm(
@@ -41,8 +42,8 @@ fun Alarm(
     onRepeatDaysChange: (List<Day>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val textColor by animateColorAsState(
-        if (item.isActive) MaterialTheme.colorScheme.onSurface else Color(0xFF858585)
+    val textAlpha by animateFloatAsState(
+        if (item.isActive) ContentAlpha.high else ContentAlpha.disabled
     )
     Box(
         modifier = modifier
@@ -58,32 +59,30 @@ fun Alarm(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (item.isDetailsVisible) {
-                    if (item.label != null) {
-                        Text(
-                            text = item.label,
-                            fontSize = 13.sp,
-                            color = textColor
+                if (item.label != null) {
+                    Text(
+                        text = item.label,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.alpha(textAlpha)
+                    )
+                } else if (item.isDetailsVisible) {
+                    Row(
+                        modifier = Modifier
+                            .clickable { onLabelClick() },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Label,
+                            contentDescription = "Add Label",
+                            tint = MaterialTheme.colorScheme.secondary
                         )
-                    } else {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onLabelClick() },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Label,
-                                contentDescription = "Add Label",
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Add label",
-                                fontSize = 13.sp,
-                                color = Color(0xFF858585)
-                            )
-                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Add label",
+                            fontSize = 13.sp,
+                            color = Color(0xFF858585)
+                        )
                     }
                 } else {
                     Spacer(modifier = Modifier.width(20.dp))
@@ -98,12 +97,16 @@ fun Alarm(
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
+            val minute =
+                if (item.dateTime.minute.toString().length == 1) "0${item.dateTime.minute}" else item.dateTime.minute.toString()
             Text(
-                text = "${item.dateTime.hour}:${item.dateTime.minute}",
+                text = "${item.dateTime.hour}:${minute}",
                 style = MaterialTheme.typography.headlineMedium,
-                color = textColor,
-                fontWeight = FontWeight(if(item.isActive) 800 else 500),
-                modifier = Modifier.clickable { onChangeTimeClick() }
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight(if (item.isActive) 800 else 500),
+                modifier = Modifier
+                    .clickable { onChangeTimeClick() }
+                    .alpha(textAlpha)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Row(
@@ -116,7 +119,9 @@ fun Alarm(
                 }
                 scheduledText = if (item.nextDay == null && !item.isActive) {
                     "Not scheduled"
-                } else if (item.isActive) {
+                } else if(item.nextDay == null && item.dateTime.isBefore(LocalDateTime.now())) {
+                    "Tomorrow"
+                } else if (item.isActive && item.nextDay == null) {
                     "Today"
                 } else if (item.nextDay?.name == LocalDateTime.now().plusDays(1).dayOfWeek.name) {
                     "Tomorrow"
@@ -130,7 +135,8 @@ fun Alarm(
                 Text(
                     text = scheduledText,
                     fontSize = 13.sp,
-                    color = textColor
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.alpha(textAlpha)
                 )
                 Switch(
                     checked = item.isActive,
@@ -141,75 +147,85 @@ fun Alarm(
                         uncheckedBorderColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
                     thumbContent = {
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.secondary)
-                                    .size(30.dp)
-                            )
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.secondary)
+                                .size(30.dp)
+                        )
                     }
                 )
             }
-                AnimatedVisibility(
-                    visible = item.isDetailsVisible,
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    Column {
+            AnimatedVisibility(
+                visible = item.isDetailsVisible,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically()
+            ) {
+                Column {
 
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(Day.values()) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(35.dp)
-                                        .border(
-                                            color = if (item.repeatDays.contains(it)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                                            width = 1.dp,
-                                            shape = CircleShape
-                                        )
-                                        .clip(CircleShape)
-                                        .background(if (item.repeatDays.contains(it)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary)
-                                        .clickable {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(Day.values()) {
+                            Box(
+                                modifier = Modifier
+                                    .size(35.dp)
+                                    .border(
+                                        color = if (item.repeatDays.contains(it)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                        width = 1.dp,
+                                        shape = CircleShape
+                                    )
+                                    .clip(CircleShape)
+                                    .background(if (item.repeatDays.contains(it)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary)
+                                    .clickable {
+                                        if (item.repeatDays.contains(it)) {
                                             val newList = mutableListOf<Day>()
                                             item.repeatDays.forEach { day ->
                                                 if (it != day) newList.add(day)
                                             }
                                             onRepeatDaysChange(newList)
+                                        } else {
+                                            val newList = mutableListOf<Day>()
+                                            item.repeatDays.forEach { day ->
+                                                newList.add(day)
+                                            }
+                                            newList.add(it)
+                                            newList.sort()
+                                            onRepeatDaysChange(newList)
                                         }
-                                        .padding(5.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = it.name.toList().first().toString(),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = if (item.repeatDays.contains(it)) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(6.dp))
+                                    }
+                                    .padding(5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = it.name.toList().first().toString(),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (item.repeatDays.contains(it)) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                                )
                             }
-                        }
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Row(
-                            modifier = Modifier.clickable { onDeleteClick() },
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete Alarm",
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Delete",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Spacer(modifier = Modifier.width(6.dp))
                         }
                     }
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Row(
+                        modifier = Modifier.clickable { onDeleteClick() },
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Alarm",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = "Delete",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
+            }
         }
     }
-}
+    }

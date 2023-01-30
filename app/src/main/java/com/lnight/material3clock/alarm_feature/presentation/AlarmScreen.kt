@@ -1,14 +1,14 @@
 package com.lnight.material3clock.alarm_feature.presentation
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -19,11 +19,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lnight.material3clock.alarm_feature.presentation.components.Alarm
@@ -57,7 +56,7 @@ fun AlarmScreen(
                     val item = AlarmStateItem(
                         id = 0,
                         dateTime = LocalDateTime.now().plusSeconds(30),
-                        label = null,
+                        label = "null",
                         repeatDays = listOf(Day.SUNDAY, Day.SATURDAY),
                         isActive = true,
                         isDetailsVisible = false,
@@ -75,8 +74,8 @@ fun AlarmScreen(
             !listState.canScrollBackward
         }
     }
-    val titleSectionColor by animateColorAsState(
-       targetValue = if(isAlarmsOnStartPosition) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSecondary
+    val titleSectionAlpha by animateFloatAsState(
+       targetValue = if(isAlarmsOnStartPosition) ContentAlpha.medium else ContentAlpha.high
     )
     val titleShadow by animateDpAsState(
         targetValue = if(isAlarmsOnStartPosition) 0.dp else 10.dp
@@ -90,8 +89,9 @@ fun AlarmScreen(
                 .fillMaxWidth()
                 .height(110.dp)
                 .shadow(titleShadow)
-                .background(titleSectionColor)
+                .background(MaterialTheme.colorScheme.surface)
                 .zIndex(1f)
+                .alpha(titleSectionAlpha)
         ) {
             Text(
                 text = "Alarm",
@@ -114,7 +114,6 @@ fun AlarmScreen(
                     Spacer(modifier = Modifier.height(120.dp))
                 }
                 items(state.alarmStateItems) { item ->
-                    println(state.alarmStateItems.size)
                     Alarm(
                         item = item,
                         onLabelClick = { viewModel.onEvent(AlarmsEvent.OnLabelClick(item)) },
