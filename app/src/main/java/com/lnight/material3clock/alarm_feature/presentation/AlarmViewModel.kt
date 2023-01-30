@@ -9,6 +9,7 @@ import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmSchedul
 import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
 import com.lnight.material3clock.core.toAlarmItem
 import com.lnight.material3clock.core.toAlarmStateItem
+import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
@@ -61,23 +62,37 @@ class AlarmViewModel @Inject constructor(
                 viewModelScope.launch {
                     alarmUseCases.insertAlarmUseCase(event.item.toAlarmItem())
                     alarmScheduler.schedule(event.item.toAlarmItem())
+                    shouldUpdateState = true
                 }
             }
             is AlarmsEvent.OnDeleteClick -> {
                 viewModelScope.launch {
                     alarmUseCases.deleteAlarmUseCase(event.item.toAlarmItem()) // TODO snackbar
+                    shouldUpdateState = true
                 }
             }
             AlarmsEvent.OnAddButtonClick -> {
                 viewModelScope.launch {
-                    val time = LocalTime.now()
-                    _uiEvent.send(UiEvent.ShowTimePickerDialog(time))
+                    val time = LocalTime.now().plusMinutes(5).noSeconds()
+                    state = state.copy(
+                        timePickerData = state.timePickerData.copy(
+                            initialTime = time,
+                            eventType = TimePickerEvents.CreateAlarm
+                        )
+                    )
+                    _uiEvent.send(UiEvent.ShowTimePickerDialog)
                 }
             }
-            AlarmsEvent.OnAlarmTimeClick -> {
+            is AlarmsEvent.OnAlarmTimeClick -> {
                 viewModelScope.launch {
-                    val time = LocalTime.now()
-                    _uiEvent.send(UiEvent.ShowTimePickerDialog(time))
+                    val time = LocalTime.now().plusMinutes(5).noSeconds()
+                    state = state.copy(
+                        timePickerData = state.timePickerData.copy(
+                            initialTime = time,
+                            eventType = TimePickerEvents.UpdateAlarmTime(item = event.item)
+                        )
+                    )
+                    _uiEvent.send(UiEvent.ShowTimePickerDialog)
                 }
             }
             is AlarmsEvent.ToggleDetailsSection -> {
@@ -105,20 +120,15 @@ class AlarmViewModel @Inject constructor(
             }
             is AlarmsEvent.ChangeAlarmTime -> {
                 viewModelScope.launch {
-                    val newItem = event.item.copy(dateTime = event.newTime)
-                    val newList = state.alarmStateItems.map {
-                        if (it == event.item) {
-                            it.copy(dateTime = event.newTime)
-                        } else it
-                    }
-                    state = state.copy(alarmStateItems = newList)
-                    val newAlarmItem = newItem.toAlarmItem()
-                    alarmUseCases.insertAlarmUseCase(newAlarmItem)
+                    alarmUseCases.insertAlarmUseCase(event.item.copy(dateTime = event.newTime).toAlarmItem())
+                    alarmScheduler.schedule(event.item.toAlarmItem())
+                    shouldUpdateState = true
                 }
             }
             is AlarmsEvent.OnLabelClick -> {
                 viewModelScope.launch {
-                    _uiEvent.send(UiEvent.ShowChangeLabelDialog(event.item.label))
+                    state = state.copy(initialLabelValue = event.item.label)
+                    _uiEvent.send(UiEvent.ShowChangeLabelDialog)
                 }
             }
             is AlarmsEvent.OnLabelChange -> {

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lnight.material3clock.alarm_feature.presentation.AlarmStateItem
 import com.lnight.material3clock.core.Day
+import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import java.time.LocalDateTime
 import java.util.*
 
@@ -97,10 +98,8 @@ fun Alarm(
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            val minute =
-                if (item.dateTime.minute.toString().length == 1) "0${item.dateTime.minute}" else item.dateTime.minute.toString()
             Text(
-                text = "${item.dateTime.hour}:${minute}",
+                text = "${item.dateTime.toLocalTime().noSeconds()}",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight(if (item.isActive) 800 else 500),

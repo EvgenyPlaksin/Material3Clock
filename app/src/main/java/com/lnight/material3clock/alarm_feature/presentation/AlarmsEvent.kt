@@ -10,7 +10,7 @@ sealed interface AlarmsEvent {
     class CreateAlarm(val item: AlarmStateItem): AlarmsEvent
     class TurnOnOffAlarm(val item: AlarmStateItem): AlarmsEvent
     object OnAddButtonClick: AlarmsEvent
-    object OnAlarmTimeClick: AlarmsEvent
+    class OnAlarmTimeClick(val item: AlarmStateItem): AlarmsEvent
     class OnLabelClick(val item: AlarmStateItem): AlarmsEvent
     class OnLabelChange(val item: AlarmStateItem, val label: String): AlarmsEvent
     class ChangeAlarmTime(val item: AlarmStateItem, val newTime: LocalDateTime): AlarmsEvent

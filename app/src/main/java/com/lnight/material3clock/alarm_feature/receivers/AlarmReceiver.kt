@@ -10,6 +10,7 @@ import com.lnight.material3clock.alarm_feature.domain.repository.AlarmRepository
 import com.lnight.material3clock.core.Day
 import com.lnight.material3clock.core.ExtraKeys
 import com.lnight.material3clock.core.goAsync
+import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDateTime
@@ -34,7 +35,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val dateTime = LocalDateTime.now()
         val day = dateTime.dayOfWeek.name.lowercase().substring(0, 3)
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-        val time = "$day - ${dateTime.hour}:${dateTime.minute}"
+        val time = "$day - ${dateTime.toLocalTime().noSeconds()}"
         val id = intent?.getIntExtra(ExtraKeys.ALARM_ID, -1) ?: -1
         val alarm = repository.getAlarmById(id)
         if (alarm?.isActive == true) {
