@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
 import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
+import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 import com.lnight.material3clock.core.toAlarmItem
 import com.lnight.material3clock.core.toAlarmStateItem
 import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
@@ -30,8 +31,6 @@ class AlarmViewModel @Inject constructor(
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
-
-    private var shouldUpdateState = true
 
     init {
         getAllAlarms()
@@ -115,6 +114,9 @@ class AlarmViewModel @Inject constructor(
                     }
                     state = state.copy(alarmStateItems = newList)
                     val newAlarmItem = newItem.toAlarmItem()
+                    if(newAlarmItem.isActive) {
+                        alarmScheduler.schedule(newAlarmItem)
+                    }
                     alarmUseCases.insertAlarmUseCase(newAlarmItem)
                 }
             }
@@ -127,7 +129,12 @@ class AlarmViewModel @Inject constructor(
             }
             is AlarmsEvent.OnLabelClick -> {
                 viewModelScope.launch {
-                    state = state.copy(initialLabelValue = event.item.label)
+                    state = state.copy(
+                        changeLabelData = ChangeLabelData(
+                            item = event.item,
+                            initialText = event.item.label
+                        )
+                    )
                     _uiEvent.send(UiEvent.ShowChangeLabelDialog)
                 }
             }

@@ -3,10 +3,12 @@ package com.lnight.material3clock.alarm_feature.presentation
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -16,7 +18,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -25,6 +33,7 @@ import com.lnight.material3clock.alarm_feature.presentation.components.Alarm
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,6 +81,79 @@ fun AlarmScreen(
         targetValue = if (isAlarmsOnStartPosition) 0.dp else 10.dp
     )
 
+    if(shouldShowChangeLabelDialog) {
+        var text by remember {
+            mutableStateOf(TextFieldValue(state.changeLabelData.initialText ?: ""))
+        }
+        val focusRequester = remember { FocusRequester() }
+        AlertDialog(
+            onDismissRequest = { shouldShowChangeLabelDialog = false }
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(14.dp)
+                    .height(110.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                if (it.hasFocus) {
+                                    text = text.copy(selection = TextRange(0, text.text.length))
+                                }
+                            }
+                            .focusRequester(focusRequester),
+                        label = { Text(text = "Label") }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(end = 6.dp)
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable { shouldShowChangeLabelDialog = false }
+                                .padding(4.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "OK",
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable {
+                                    viewModel.onEvent(
+                                        AlarmsEvent.OnLabelChange(
+                                            item = state.changeLabelData.item,
+                                            label = text.text
+                                        )
+                                    )
+                                    shouldShowChangeLabelDialog = false
+                                }
+                                .padding(4.dp)
+                        )
+                    }
+                    LaunchedEffect(key1 = true) {
+                        focusRequester.requestFocus()
+                    }
+                }
+            }
+        }
+    }
+
     if (shouldShowTimePickerDialog) {
         TimePickerDialog(
             initialTime = state.timePickerData.initialTime,
@@ -99,7 +181,7 @@ fun AlarmScreen(
                         viewModel.onEvent(
                             AlarmsEvent.ChangeAlarmTime(
                                 item = state.timePickerData.eventType.item,
-                                newTime = LocalDateTime.of(LocalDate.now(), it)
+                                newTime = LocalDateTime.of(if(LocalTime.now().isBefore(it)) LocalDate.now() else LocalDate.now().plusDays(1), it)
                             )
                         )
                     }

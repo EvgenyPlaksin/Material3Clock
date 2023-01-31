@@ -21,7 +21,7 @@ class AndroidAlarmScheduler(
         }
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            item.timestamp,
+            item.timestamp * 1000,
             PendingIntent.getBroadcast(
                 context,
                 item.id,

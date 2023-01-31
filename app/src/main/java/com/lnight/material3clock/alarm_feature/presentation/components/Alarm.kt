@@ -65,7 +65,9 @@ fun Alarm(
                         text = item.label,
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.alpha(textAlpha)
+                        modifier = Modifier
+                            .alpha(textAlpha)
+                            .clickable { onLabelClick() }
                     )
                 } else if (item.isDetailsVisible) {
                     Row(

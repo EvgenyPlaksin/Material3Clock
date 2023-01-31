@@ -11,6 +11,7 @@ import com.lnight.material3clock.alarm_feature.receivers.AlarmStopReceiver
 import com.lnight.material3clock.core.ExtraKeys
 import com.lnight.material3clock.core.NotificationConstants
 import com.lnight.material3clock.MainActivity
+import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 
 class AlarmNotificationServiceImpl(
     private val context: Context
@@ -53,9 +54,11 @@ class AlarmNotificationServiceImpl(
 
         val notification = notificationBuilder.build()
         notificationManager.notify(id, notification)
+        shouldUpdateState = true
     }
 
     override fun cancelNotification(id: Int) {
         notificationManager.cancel(id)
+        shouldUpdateState = true
     }
 }
