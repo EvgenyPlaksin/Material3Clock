@@ -58,3 +58,15 @@ fun AlarmItem.toAlarmStateItem(): AlarmStateItem {
       nextDay = if(nextDay == null) null else enumValueOf<Day>(nextDay)
   )
 }
+
+fun Int.calculateDaysAmount(): Long {
+    return when (this) {
+        -1 -> 6
+        -2 -> 5
+        -3 -> 4
+        -4 -> 3
+        -5 -> 2
+        -6 -> 1
+        else -> this
+    }.toLong()
+}

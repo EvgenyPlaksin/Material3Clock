@@ -118,19 +118,15 @@ fun Alarm(
                 var scheduledText by remember {
                     mutableStateOf("")
                 }
-                scheduledText = if (item.nextDay == null && !item.isActive) {
-                    "Not scheduled"
-                } else if(item.nextDay == null && item.dateTime.isBefore(LocalDateTime.now())) {
-                    "Tomorrow"
-                } else if (item.isActive && item.nextDay == null) {
-                    "Today"
-                } else if (item.nextDay?.name == LocalDateTime.now().plusDays(1).dayOfWeek.name) {
-                    "Tomorrow"
-                } else {
-                    item.nextDay?.name?.lowercase()?.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
+                scheduledText = when {
+                    item.nextDay == null && !item.isActive -> "Not scheduled"
+                    item.nextDay == null && item.dateTime.dayOfWeek.name == LocalDateTime.now()
+                        .plusDays(1).dayOfWeek.name -> "Tomorrow"
+                    item.isActive && item.nextDay == null -> "Today"
+                    item.nextDay?.name == LocalDateTime.now()
+                        .plusDays(1).dayOfWeek.name -> "Tomorrow"
+                    else -> item.nextDay?.name?.lowercase()?.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                     } ?: "Unknown"
                 }
                 Text(
@@ -229,4 +225,4 @@ fun Alarm(
             }
         }
     }
-    }
+}

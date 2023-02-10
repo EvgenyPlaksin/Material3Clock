@@ -60,7 +60,6 @@ class AlarmViewModel @Inject constructor(
             is AlarmsEvent.CreateAlarm -> {
                 viewModelScope.launch {
                     alarmUseCases.insertAlarmUseCase(event.item.toAlarmItem())
-                    alarmScheduler.schedule(event.item.toAlarmItem())
                     shouldUpdateState = true
                 }
             }
@@ -123,7 +122,6 @@ class AlarmViewModel @Inject constructor(
             is AlarmsEvent.ChangeAlarmTime -> {
                 viewModelScope.launch {
                     alarmUseCases.insertAlarmUseCase(event.item.copy(dateTime = event.newTime).toAlarmItem())
-                    alarmScheduler.schedule(event.item.toAlarmItem())
                     shouldUpdateState = true
                 }
             }
@@ -158,6 +156,9 @@ class AlarmViewModel @Inject constructor(
         alarmUseCases.getAlarmsUseCase().onEach { alarms ->
             if (shouldUpdateState) {
                 val alarmsState = alarms.map { it.toAlarmStateItem() }
+                if(state.alarmStateItems.lastOrNull() != alarmsState.lastOrNull()) {
+                    alarmsState.lastOrNull()?.toAlarmItem()?.let { alarmScheduler.schedule(it) }
+                }
                 state = state.copy(
                     alarmStateItems = alarmsState
                 )
