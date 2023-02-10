@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class AlarmItem(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = -1,
+    val id: Int = 0,
     val timestamp: Long,
     val label: String?,
     val repeatDays: List<String>,

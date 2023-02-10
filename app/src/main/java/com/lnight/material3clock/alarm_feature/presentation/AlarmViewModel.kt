@@ -84,7 +84,7 @@ class AlarmViewModel @Inject constructor(
             }
             is AlarmsEvent.OnAlarmTimeClick -> {
                 viewModelScope.launch {
-                    val time = LocalTime.now().plusMinutes(5).noSeconds()
+                    val time = event.item.dateTime.toLocalTime().noSeconds()
                     state = state.copy(
                         timePickerData = state.timePickerData.copy(
                             initialTime = time,

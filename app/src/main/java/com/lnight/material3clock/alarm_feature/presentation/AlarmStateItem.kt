@@ -4,7 +4,7 @@ import com.lnight.material3clock.core.Day
 import java.time.LocalDateTime
 
 data class AlarmStateItem(
-    val id: Int = -1,
+    val id: Int = 0,
     val dateTime: LocalDateTime = LocalDateTime.now(),
     val label: String? = null,
     val repeatDays: List<Day> = emptyList(),
