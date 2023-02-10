@@ -7,9 +7,7 @@ import android.content.Intent
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
 import com.lnight.material3clock.alarm_feature.data.notification_service.AlarmNotificationService
 import com.lnight.material3clock.alarm_feature.domain.repository.AlarmRepository
-import com.lnight.material3clock.core.Day
-import com.lnight.material3clock.core.ExtraKeys
-import com.lnight.material3clock.core.goAsync
+import com.lnight.material3clock.core.*
 import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +43,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     Instant.ofEpochSecond(alarm.timestamp),
                     TimeZone.getDefault().toZoneId()
                 )
-                if (dateTime.isEqual(alarmDateTime)) {
+                if (dateTime.isEqualByMinutes(alarmDateTime)) {
                     if (alarm.label != null) {
                         alarmNotificationService.showNotification(alarm.label, time, id)
                     } else {
@@ -69,15 +67,7 @@ class AlarmReceiver : BroadcastReceiver() {
                                 index + 1
                             if (nextDay == dayEnum.name) nextDayInWeek = index + 1
                         }
-                        val daysAmount = when (nextDayInWeek - currentDayInWeek) {
-                            -1 -> 6
-                            -2 -> 5
-                            -3 -> 4
-                            -4 -> 3
-                            -5 -> 2
-                            -6 -> 1
-                            else -> nextDayInWeek - currentDayInWeek
-                        }.toLong()
+                        val daysAmount = (nextDayInWeek - currentDayInWeek).calculateDaysAmount()
 
                         val timestamp =
                             dateTime.plusDays(daysAmount).atZone(ZoneId.systemDefault())

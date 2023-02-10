@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -108,7 +109,11 @@ class AlarmViewModel @Inject constructor(
                     val newItem = event.item.copy(isActive = !event.item.isActive)
                     val newList = state.alarmStateItems.map {
                         if (it == event.item) {
-                            it.copy(isActive = !it.isActive)
+                            val newTime = if(it.dateTime.isBefore(LocalDateTime.now()) && !it.isActive) it.dateTime.plusDays(1) else it.dateTime
+                            it.copy(
+                                isActive = !it.isActive,
+                                dateTime = newTime
+                            )
                         } else it
                     }
                     state = state.copy(alarmStateItems = newList)

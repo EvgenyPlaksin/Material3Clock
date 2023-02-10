@@ -42,21 +42,22 @@ fun AlarmStateItem.toAlarmItem(): AlarmItem {
 }
 
 fun AlarmItem.toAlarmStateItem(): AlarmStateItem {
-    val dateTime =  LocalDateTime.ofInstant(
+    val dateTime = LocalDateTime.ofInstant(
         Instant.ofEpochSecond(timestamp),
-        TimeZone.getDefault().toZoneId())
+        TimeZone.getDefault().toZoneId()
+    )
     val newDays = repeatDays.map {
         enumValueOf<Day>(it)
     }
-  return AlarmStateItem(
-      id = id,
-      dateTime = dateTime,
-      label = label,
-      repeatDays = newDays,
-      isActive = isActive,
-      isDetailsVisible = false,
-      nextDay = if(nextDay == null) null else enumValueOf<Day>(nextDay)
-  )
+    return AlarmStateItem(
+        id = id,
+        dateTime = dateTime,
+        label = label,
+        repeatDays = newDays,
+        isActive = isActive,
+        isDetailsVisible = false,
+        nextDay = if (nextDay == null) null else enumValueOf<Day>(nextDay)
+    )
 }
 
 fun Int.calculateDaysAmount(): Long {
@@ -70,3 +71,5 @@ fun Int.calculateDaysAmount(): Long {
         else -> this
     }.toLong()
 }
+
+fun LocalDateTime.isEqualByMinutes(dateTimeToCompare: LocalDateTime) = this.dayOfWeek.name == dateTimeToCompare.dayOfWeek.name && this.hour == dateTimeToCompare.hour && this.minute == dateTimeToCompare.minute
