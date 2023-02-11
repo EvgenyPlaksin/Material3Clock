@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.lnight.material3clock.R
+import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 import com.lnight.material3clock.core.activity
 import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import java.io.IOException
@@ -61,12 +62,14 @@ fun StopAlarmScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 UiEvent.NavigateUp -> {
+                    shouldUpdateState = true
                     mediaPlayer.stop()
                     if (!navController.navigateUp()) {
                         context.activity?.finish()
                     }
                 }
                 is UiEvent.Navigate -> {
+                    shouldUpdateState = true
                     mediaPlayer.stop()
                     navController.navigate(event.route)
                 }
