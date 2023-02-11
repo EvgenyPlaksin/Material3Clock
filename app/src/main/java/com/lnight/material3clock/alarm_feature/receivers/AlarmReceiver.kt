@@ -11,7 +11,6 @@ import com.lnight.material3clock.core.*
 import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -39,10 +38,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val alarm = repository.getAlarmById(id)
         if (alarm?.isActive == true) {
             if (alarm.repeatDays.isEmpty() || alarm.repeatDays.contains(dateTime.dayOfWeek.name)) {
-                val alarmDateTime = LocalDateTime.ofInstant(
-                    Instant.ofEpochSecond(alarm.timestamp),
-                    TimeZone.getDefault().toZoneId()
-                )
+                val alarmDateTime = alarm.timestamp.toLocalDateTime()
                 if (dateTime.isEqualByMinutes(alarmDateTime)) {
                     if (alarm.label != null) {
                         alarmNotificationService.showNotification(alarm.label, time, id)

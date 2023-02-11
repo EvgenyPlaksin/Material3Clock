@@ -45,10 +45,7 @@ fun AlarmStateItem.toAlarmItem(): AlarmItem {
 }
 
 fun AlarmItem.toAlarmStateItem(): AlarmStateItem {
-    val dateTime = LocalDateTime.ofInstant(
-        Instant.ofEpochSecond(timestamp),
-        TimeZone.getDefault().toZoneId()
-    )
+    val dateTime = timestamp.toLocalDateTime()
     val newDays = repeatDays.map {
         enumValueOf<Day>(it)
     }
@@ -84,3 +81,10 @@ val Context.activity: ComponentActivity?
         is ContextWrapper -> baseContext.activity
         else -> null
     }
+
+fun Long.toLocalDateTime(): LocalDateTime {
+    return LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(this),
+        TimeZone.getDefault().toZoneId()
+    )
+}

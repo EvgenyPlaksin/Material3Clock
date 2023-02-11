@@ -1,6 +1,5 @@
 package com.lnight.material3clock.alarm_feature.presentation
 
-import android.os.Build
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -18,30 +17,22 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import com.lnight.material3clock.alarm_feature.presentation.components.Alarm
+import com.lnight.material3clock.alarm_feature.presentation.components.RequestNotificationsPermission
+import com.lnight.material3clock.alarm_feature.presentation.components.TitleSection
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -175,8 +166,9 @@ fun AlarmScreen(
             onTimeChange = {
                 when (state.timePickerData.eventType) {
                     TimePickerEvents.CreateAlarm -> {
+                        val dateTime = if(LocalTime.now().isBefore(it)) LocalDate.now() else LocalDate.now().plusDays(1)
                         val item = AlarmStateItem(
-                            dateTime = LocalDateTime.of(LocalDate.now(), it),
+                            dateTime = LocalDateTime.of(dateTime, it),
                             label = null,
                             repeatDays = emptyList(),
                             isDetailsVisible = false,
@@ -202,26 +194,11 @@ fun AlarmScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(110.dp)
-                .shadow(titleShadow)
-                .background(MaterialTheme.colorScheme.surface)
-                .zIndex(1f)
-                .alpha(titleSectionAlpha)
-        ) {
-            Text(
-                text = "Alarm",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, bottom = 20.dp)
-                    .align(Alignment.BottomStart)
-            )
-        }
+        TitleSection(
+            titleText = "Alarm",
+            titleShadow = titleShadow,
+            titleSectionAlpha = titleSectionAlpha
+        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -236,7 +213,19 @@ fun AlarmScreen(
                 key = { state.alarmStateItems[it].id }
             ) { index ->
                 val item = state.alarmStateItems[index]
+                val scheduledText = when {
+                    item.nextDay == null && !item.isActive -> "Not scheduled"
+                    item.nextDay == null && item.dateTime.dayOfWeek.name == LocalDateTime.now()
+                        .plusDays(1).dayOfWeek.name -> "Tomorrow"
+                    item.nextDay?.name == LocalDateTime.now()
+                        .plusDays(1).dayOfWeek.name -> "Tomorrow"
+                    item.isActive && item.nextDay == null -> "Today"
+                    else -> item.nextDay?.name?.lowercase()?.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                    } ?: "Unknown"
+                }
                 Alarm(
+                    scheduledText = scheduledText,
                     item = item,
                     onLabelClick = { viewModel.onEvent(AlarmsEvent.OnLabelClick(item)) },
                     onDeleteClick = { viewModel.onEvent(AlarmsEvent.OnDeleteClick(item)) },
@@ -271,31 +260,6 @@ fun AlarmScreen(
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(26.dp)
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-private fun RequestNotificationsPermission(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val permissionState = rememberPermissionState(
-            android.Manifest.permission.POST_NOTIFICATIONS
-        )
-        if (!permissionState.status.isGranted) {
-            DisposableEffect(lifecycleOwner) {
-                val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_START) {
-                        permissionState.launchPermissionRequest()
-                    }
-                }
-                lifecycleOwner.lifecycle.addObserver(observer)
-                onDispose {
-                    lifecycleOwner.lifecycle.removeObserver(observer)
-                }
-            }
         }
     }
 }

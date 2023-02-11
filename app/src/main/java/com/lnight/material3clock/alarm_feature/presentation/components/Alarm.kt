@@ -29,12 +29,11 @@ import androidx.compose.ui.unit.sp
 import com.lnight.material3clock.alarm_feature.presentation.AlarmStateItem
 import com.lnight.material3clock.core.Day
 import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
-import java.time.LocalDateTime
-import java.util.*
 
 @Composable
 fun Alarm(
     item: AlarmStateItem,
+    scheduledText: String,
     onLabelClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onChangeTimeClick: () -> Unit,
@@ -115,22 +114,6 @@ fun Alarm(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var scheduledText by remember {
-                    mutableStateOf("")
-                }
-                SideEffect {
-                    scheduledText = when {
-                        item.nextDay == null && !item.isActive -> "Not scheduled"
-                        item.nextDay == null && item.dateTime.dayOfWeek.name == LocalDateTime.now()
-                            .plusDays(1).dayOfWeek.name -> "Tomorrow"
-                        item.isActive && item.nextDay == null -> "Today"
-                        item.nextDay?.name == LocalDateTime.now()
-                            .plusDays(1).dayOfWeek.name -> "Tomorrow"
-                        else -> item.nextDay?.name?.lowercase()?.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                        } ?: "Unknown"
-                    }
-                }
                 Text(
                     text = scheduledText,
                     fontSize = 13.sp,

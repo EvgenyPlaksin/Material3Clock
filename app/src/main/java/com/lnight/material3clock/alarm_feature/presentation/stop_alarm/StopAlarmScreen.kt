@@ -5,7 +5,10 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -21,11 +24,8 @@ import androidx.navigation.NavController
 import com.lnight.material3clock.R
 import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 import com.lnight.material3clock.core.activity
-import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
+import com.lnight.material3clock.core.toLocalDateTime
 import java.io.IOException
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.*
 
 @Composable
 fun StopAlarmScreen(
@@ -36,10 +36,7 @@ fun StopAlarmScreen(
     val item = viewModel.state.item
 
     val context = LocalContext.current
-    val time = LocalDateTime.ofInstant(
-        Instant.ofEpochSecond(item?.timestamp ?: 0),
-        TimeZone.getDefault().toZoneId()
-    ).toLocalTime().noSeconds()
+    val time = (item?.timestamp ?: 0).toLocalDateTime()
 
     LaunchedEffect(key1 = true) {
         val sound = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.alarm_sound)

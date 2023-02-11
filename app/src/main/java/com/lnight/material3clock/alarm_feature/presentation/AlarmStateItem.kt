@@ -10,5 +10,5 @@ data class AlarmStateItem(
     val repeatDays: List<Day> = emptyList(),
     val isActive: Boolean = true,
     val isDetailsVisible: Boolean = false,
-    val nextDay: Day? = null
+    val nextDay: Day? = null,
 )
