@@ -1,6 +1,9 @@
 package com.lnight.material3clock.core
 
 import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
 import com.lnight.material3clock.alarm_feature.presentation.AlarmStateItem
 import kotlinx.coroutines.CoroutineScope
@@ -72,4 +75,12 @@ fun Int.calculateDaysAmount(): Long {
     }.toLong()
 }
 
-fun LocalDateTime.isEqualByMinutes(dateTimeToCompare: LocalDateTime) = this.dayOfWeek.name == dateTimeToCompare.dayOfWeek.name && this.hour == dateTimeToCompare.hour && this.minute == dateTimeToCompare.minute
+fun LocalDateTime.isEqualByMinutes(dateTimeToCompare: LocalDateTime) =
+    this.dayOfWeek.name == dateTimeToCompare.dayOfWeek.name && this.hour == dateTimeToCompare.hour && this.minute == dateTimeToCompare.minute
+
+val Context.activity: ComponentActivity?
+    get() = when (this) {
+        is ComponentActivity -> this
+        is ContextWrapper -> baseContext.activity
+        else -> null
+    }

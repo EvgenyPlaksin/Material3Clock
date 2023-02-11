@@ -2,15 +2,15 @@ package com.lnight.material3clock.alarm_feature.data.notification_service
 
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.app.NotificationCompat
+import com.lnight.material3clock.MainActivity
 import com.lnight.material3clock.R
 import com.lnight.material3clock.alarm_feature.receivers.AlarmStopReceiver
-import com.lnight.material3clock.core.ExtraKeys
 import com.lnight.material3clock.core.NotificationConstants
-import com.lnight.material3clock.MainActivity
 import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 
 class AlarmNotificationServiceImpl(
@@ -20,21 +20,25 @@ class AlarmNotificationServiceImpl(
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     override fun showNotification(title: String, description: String?, id: Int) {
-        val activityIntent = Intent(context, MainActivity::class.java)
-        val activityPendingIntent = PendingIntent.getActivity(
+        val activityIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://alarm.com/id=$id"),
             context,
-            1,
-            activityIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            MainActivity::class.java
         )
-        val cancelIntent = Intent(context, AlarmStopReceiver::class.java).apply {
-            putExtra(ExtraKeys.ALARM_ID, id)
+        val activityPendingIntent: PendingIntent = TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(activityIntent)
+            getPendingIntent(
+                1,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         }
+        val cancelIntent = Intent(context, AlarmStopReceiver::class.java)
         val cancelPendingIntent = PendingIntent.getBroadcast(
             context,
             2,
             cancelIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val sound = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.alarm_sound)
         val vibrationPattern = longArrayOf(1000, 1000, 1000, 1000, 1000)
@@ -45,6 +49,7 @@ class AlarmNotificationServiceImpl(
             .setContentIntent(activityPendingIntent)
             .setSound(sound)
             .setVibrate(vibrationPattern)
+            .setFullScreenIntent(activityPendingIntent, true)
             .addAction(
                 R.drawable.ic_alarm,
                 "Stop",
@@ -57,8 +62,8 @@ class AlarmNotificationServiceImpl(
         shouldUpdateState = true
     }
 
-    override fun cancelNotification(id: Int) {
-        notificationManager.cancel(id)
+    override fun cancelNotification() {
+        notificationManager.cancelAll()
         shouldUpdateState = true
     }
 }

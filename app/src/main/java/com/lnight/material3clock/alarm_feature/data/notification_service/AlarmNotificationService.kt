@@ -4,5 +4,5 @@ interface AlarmNotificationService {
 
     fun showNotification(title: String, description: String?, id: Int)
 
-    fun cancelNotification(id: Int)
+    fun cancelNotification()
 }

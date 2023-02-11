@@ -21,14 +21,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
 import com.lnight.material3clock.alarm_feature.presentation.AlarmScreen
-import com.lnight.material3clock.alarm_feature.presentation.StopAlarmScreen
+import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmScreen
 import com.lnight.material3clock.core.Route
 import com.lnight.material3clock.ui.theme.Material3ClockTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,22 +56,25 @@ class MainActivity : ComponentActivity() {
                                AlarmScreen()
                            }
                            composable(
-                               Route.CancelAlarmScreen.route + "/{json}",
+                               Route.CancelAlarmScreen.route + "/{id}",
                                deepLinks = listOf(
                                    navDeepLink {
-                                       uriPattern = "https://alarm.com/{json}"
+                                       uriPattern = "https://alarm.com/id={id}"
                                        action = Intent.ACTION_VIEW
                                    }
                                ),
                                arguments = listOf(
-                                   navArgument("json") {
-                                       type = NavType.StringType
+                                   navArgument("id") {
+                                       type = NavType.IntType
+                                       defaultValue = -1
                                    }
                                )
                            ) {
-                               val json = it.arguments?.getString("json") ?: return@composable
-                               val item = Json.decodeFromString<AlarmItem>(json)
-                               StopAlarmScreen(item)
+                               val id = it.arguments?.getInt("id") ?: return@composable
+                               StopAlarmScreen(
+                                   id = id,
+                                   navController = navController
+                               )
                            }
                        }
                     }

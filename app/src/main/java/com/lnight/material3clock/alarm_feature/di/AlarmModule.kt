@@ -7,10 +7,7 @@ import com.lnight.material3clock.alarm_feature.data.notification_service.AlarmNo
 import com.lnight.material3clock.alarm_feature.data.notification_service.AlarmNotificationServiceImpl
 import com.lnight.material3clock.alarm_feature.data.repository.AlarmRepositoryImpl
 import com.lnight.material3clock.alarm_feature.domain.repository.AlarmRepository
-import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
-import com.lnight.material3clock.alarm_feature.domain.use_case.DeleteAlarmUseCase
-import com.lnight.material3clock.alarm_feature.domain.use_case.GetAlarmsUseCase
-import com.lnight.material3clock.alarm_feature.domain.use_case.InsertAlarmUseCase
+import com.lnight.material3clock.alarm_feature.domain.use_case.*
 import com.lnight.material3clock.core.ClockDatabase
 import dagger.Module
 import dagger.Provides
@@ -47,7 +44,8 @@ object AlarmModule {
         return AlarmUseCases(
             getAlarmsUseCase = GetAlarmsUseCase(repository),
             insertAlarmUseCase = InsertAlarmUseCase(repository),
-            deleteAlarmUseCase = DeleteAlarmUseCase(repository)
+            deleteAlarmUseCase = DeleteAlarmUseCase(repository),
+            getAlarmByIdUseCase = GetAlarmByIdUseCase(repository)
         )
     }
 
