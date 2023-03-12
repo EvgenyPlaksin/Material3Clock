@@ -19,10 +19,10 @@ class AlarmNotificationServiceImpl(
 
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    override fun showNotification(title: String, description: String?, id: Int) {
+    override fun showNotification(item: AlarmNotificationItem) {
         val activityIntent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("https://alarm.com/id=$id"),
+            Uri.parse("https://alarm.com/id=${item.id}"),
             context,
             MainActivity::class.java
         )
@@ -41,24 +41,24 @@ class AlarmNotificationServiceImpl(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val sound = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.alarm_sound)
-        val vibrationPattern = longArrayOf(1000, 1000, 1000, 1000, 1000)
+        val vibrationPattern = longArrayOf(250, 250, 250, 250, 250)
         val notificationBuilder = NotificationCompat.Builder(context, NotificationConstants.ALARM_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_alarm)
-            .setContentTitle(title)
+            .setContentTitle(item.title)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(activityPendingIntent)
             .setSound(sound)
-            .setVibrate(vibrationPattern)
             .setFullScreenIntent(activityPendingIntent, true)
             .addAction(
                 R.drawable.ic_alarm,
                 "Stop",
                 cancelPendingIntent
             )
-        if(description != null) notificationBuilder.setContentText(description)
+        if(item.description != null) notificationBuilder.setContentText(item.description)
+        if(item.shouldVibrate) notificationBuilder.setVibrate(vibrationPattern)
 
         val notification = notificationBuilder.build()
-        notificationManager.notify(id, notification)
+        notificationManager.notify(item.id, notification)
         shouldUpdateState = true
     }
 

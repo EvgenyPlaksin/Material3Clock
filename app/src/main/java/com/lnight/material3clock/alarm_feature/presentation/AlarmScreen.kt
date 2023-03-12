@@ -173,7 +173,8 @@ fun AlarmScreen(
                             repeatDays = emptyList(),
                             isDetailsVisible = false,
                             isActive = true,
-                            nextDay = null
+                            nextDay = null,
+                            shouldVibrate = true
                         )
                         viewModel.onEvent(AlarmsEvent.CreateAlarm(item))
                     }
@@ -239,7 +240,8 @@ fun AlarmScreen(
                                 it
                             )
                         )
-                    }
+                    },
+                    onChangeVibrateClick = { viewModel.onEvent(AlarmsEvent.OnChangeVibrationClick(item)) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }

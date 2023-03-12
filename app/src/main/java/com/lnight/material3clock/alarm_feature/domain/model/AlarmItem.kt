@@ -12,5 +12,6 @@ data class AlarmItem(
     val label: String?,
     val repeatDays: List<String>,
     val isActive: Boolean,
-    val nextDay: String?
+    val nextDay: String?,
+    val shouldVibrate: Boolean
 )

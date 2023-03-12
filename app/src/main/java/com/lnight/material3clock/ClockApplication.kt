@@ -31,6 +31,7 @@ class ClockApplication: Application() {
             )
             channel.description = "Used for the alarm notifications"
             channel.setSound(sound, attributes)
+            channel.enableVibration(true)
 
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)

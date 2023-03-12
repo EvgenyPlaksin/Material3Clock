@@ -40,7 +40,8 @@ fun AlarmStateItem.toAlarmItem(): AlarmItem {
         label = label,
         repeatDays = newDays,
         isActive = isActive,
-        nextDay = nextDay?.name
+        nextDay = nextDay?.name,
+        shouldVibrate = shouldVibrate
     )
 }
 
@@ -56,7 +57,8 @@ fun AlarmItem.toAlarmStateItem(): AlarmStateItem {
         repeatDays = newDays,
         isActive = isActive,
         isDetailsVisible = false,
-        nextDay = if (nextDay == null) null else enumValueOf<Day>(nextDay)
+        nextDay = if (nextDay == null) null else enumValueOf<Day>(nextDay),
+        shouldVibrate = shouldVibrate
     )
 }
 

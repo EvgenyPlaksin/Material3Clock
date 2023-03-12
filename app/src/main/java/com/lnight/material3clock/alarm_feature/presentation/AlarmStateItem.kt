@@ -11,4 +11,5 @@ data class AlarmStateItem(
     val isActive: Boolean = true,
     val isDetailsVisible: Boolean = false,
     val nextDay: Day? = null,
+    val shouldVibrate: Boolean = true
 )

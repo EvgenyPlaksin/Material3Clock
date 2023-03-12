@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
+import com.lnight.material3clock.alarm_feature.data.notification_service.AlarmNotificationItem
 import com.lnight.material3clock.alarm_feature.data.notification_service.AlarmNotificationService
 import com.lnight.material3clock.alarm_feature.domain.repository.AlarmRepository
 import com.lnight.material3clock.core.*
@@ -41,9 +42,21 @@ class AlarmReceiver : BroadcastReceiver() {
                 val alarmDateTime = alarm.timestamp.toLocalDateTime()
                 if (dateTime.isEqualByMinutes(alarmDateTime)) {
                     if (alarm.label != null) {
-                        alarmNotificationService.showNotification(alarm.label, time, id)
+                        val item = AlarmNotificationItem(
+                            title = alarm.label,
+                            description = time,
+                            id = id,
+                            shouldVibrate = alarm.shouldVibrate
+                        )
+                        alarmNotificationService.showNotification(item)
                     } else {
-                        alarmNotificationService.showNotification(time, null, id)
+                        val item = AlarmNotificationItem(
+                            title = time,
+                            description = null,
+                            id = id,
+                            shouldVibrate = alarm.shouldVibrate
+                        )
+                        alarmNotificationService.showNotification(item)
                     }
 
                     if (alarm.repeatDays.isEmpty()) {

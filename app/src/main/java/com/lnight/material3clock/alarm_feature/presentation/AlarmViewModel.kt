@@ -154,6 +154,19 @@ class AlarmViewModel @Inject constructor(
                     alarmUseCases.insertAlarmUseCase(newAlarmItem)
                 }
             }
+            is AlarmsEvent.OnChangeVibrationClick -> {
+                viewModelScope.launch {
+                    val newItem = event.item.copy(shouldVibrate = !event.item.shouldVibrate)
+                    val newList = state.alarmStateItems.map {
+                        if (it == event.item) {
+                            it.copy(shouldVibrate = !it.shouldVibrate)
+                        } else it
+                    }
+                    state = state.copy(alarmStateItems = newList)
+                    val newAlarmItem = newItem.toAlarmItem()
+                    alarmUseCases.insertAlarmUseCase(newAlarmItem)
+                }
+            }
         }
     }
 
