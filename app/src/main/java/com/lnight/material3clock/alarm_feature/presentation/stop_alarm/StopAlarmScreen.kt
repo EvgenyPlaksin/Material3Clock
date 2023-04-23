@@ -19,21 +19,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.lnight.material3clock.R
 import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 import com.lnight.material3clock.core.activity
 import com.lnight.material3clock.core.toLocalDateTime
+import kotlinx.coroutines.flow.Flow
 import java.io.IOException
 
 @Composable
 fun StopAlarmScreen(
     id: Int,
     navController: NavController,
-    viewModel: StopAlarmViewModel = hiltViewModel()
+    state: StopAlarmState,
+    uiEvent: Flow<UiEvent>,
+    onEvent: (AlarmStopEvent) -> Unit
 ) {
-    val item = viewModel.state.item
+    val item = state.item
 
     val context = LocalContext.current
     val time = (item?.timestamp ?: 0).toLocalDateTime()
@@ -54,9 +56,9 @@ fun StopAlarmScreen(
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        viewModel.onEvent(AlarmStopEvent.PassId(id))
+       onEvent(AlarmStopEvent.PassId(id))
 
-        viewModel.uiEvent.collect { event ->
+        uiEvent.collect { event ->
             when (event) {
                 UiEvent.NavigateUp -> {
                     shouldUpdateState = true
@@ -101,7 +103,7 @@ fun StopAlarmScreen(
                 .padding(horizontal = 30.dp)
         ) {
             Button(
-                onClick = { if (item != null) viewModel.onEvent(AlarmStopEvent.Snooze(item)) },
+                onClick = { if (item != null) onEvent(AlarmStopEvent.Snooze(item)) },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                 modifier = Modifier
                     .size(height = 70.dp, width = 150.dp)
@@ -114,7 +116,7 @@ fun StopAlarmScreen(
                 )
             }
             Button(
-                onClick = { if (item != null) viewModel.onEvent(AlarmStopEvent.Stop(item)) },
+                onClick = { if (item != null) onEvent(AlarmStopEvent.Stop(item)) },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier
                     .size(height = 70.dp, width = 150.dp)

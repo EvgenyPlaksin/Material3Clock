@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
 import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
-import com.lnight.material3clock.core.Route
+import com.lnight.material3clock.core.BottomNavItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -63,7 +63,7 @@ class StopAlarmViewModel @Inject constructor(
                 viewModelScope.launch {
                     val item = alarmUseCases.getAlarmByIdUseCase(event.id)
                     if(item == null) {
-                        _uiEvent.send(UiEvent.Navigate(Route.AlarmScreen.route))
+                        _uiEvent.send(UiEvent.Navigate(BottomNavItem.Alarm.route))
                         return@launch
                     }
                     state = state.copy(item = item)

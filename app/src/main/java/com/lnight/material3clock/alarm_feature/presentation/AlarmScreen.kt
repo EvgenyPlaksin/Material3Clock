@@ -24,11 +24,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.lnight.material3clock.alarm_feature.presentation.components.Alarm
 import com.lnight.material3clock.alarm_feature.presentation.components.RequestNotificationsPermission
 import com.lnight.material3clock.alarm_feature.presentation.components.TitleSection
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -37,9 +37,10 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmScreen(
-    viewModel: AlarmViewModel = hiltViewModel()
+    state: AlarmState,
+    uiEvent: Flow<UiEvent>,
+    onEvent: (AlarmsEvent) -> Unit
 ) {
-    val state = viewModel.state
     var shouldShowTimePickerDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -50,7 +51,7 @@ fun AlarmScreen(
         mutableStateOf("")
     }
     LaunchedEffect(key1 = true) {
-        viewModel.uiEvent.collect { event ->
+       uiEvent.collect { event ->
             when (event) {
                 is UiEvent.ShowChangeLabelDialog -> {
                     shouldShowChangeLabelDialog = true
@@ -134,7 +135,7 @@ fun AlarmScreen(
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .clickable {
-                                    viewModel.onEvent(
+                                    onEvent(
                                         AlarmsEvent.OnLabelChange(
                                             item = state.changeLabelData.item,
                                             label = text.text
@@ -176,10 +177,10 @@ fun AlarmScreen(
                             nextDay = null,
                             shouldVibrate = true
                         )
-                        viewModel.onEvent(AlarmsEvent.CreateAlarm(item))
+                        onEvent(AlarmsEvent.CreateAlarm(item))
                     }
                     is TimePickerEvents.UpdateAlarmTime -> {
-                        viewModel.onEvent(
+                        onEvent(
                             AlarmsEvent.ChangeAlarmTime(
                                 item = state.timePickerData.eventType.item,
                                 newTime = LocalDateTime.of(if(LocalTime.now().isBefore(it)) LocalDate.now() else LocalDate.now().plusDays(1), it)
@@ -228,26 +229,26 @@ fun AlarmScreen(
                 Alarm(
                     scheduledText = scheduledText,
                     item = item,
-                    onLabelClick = { viewModel.onEvent(AlarmsEvent.OnLabelClick(item)) },
-                    onDeleteClick = { viewModel.onEvent(AlarmsEvent.OnDeleteClick(item)) },
-                    onChangeTimeClick = { viewModel.onEvent(AlarmsEvent.OnAlarmTimeClick(item)) },
-                    onAlarmClick = { viewModel.onEvent(AlarmsEvent.ToggleDetailsSection(item)) },
-                    onChangeIsActive = { viewModel.onEvent(AlarmsEvent.TurnOnOffAlarm(item)) },
+                    onLabelClick = { onEvent(AlarmsEvent.OnLabelClick(item)) },
+                    onDeleteClick = { onEvent(AlarmsEvent.OnDeleteClick(item)) },
+                    onChangeTimeClick = { onEvent(AlarmsEvent.OnAlarmTimeClick(item)) },
+                    onAlarmClick = { onEvent(AlarmsEvent.ToggleDetailsSection(item)) },
+                    onChangeIsActive = { onEvent(AlarmsEvent.TurnOnOffAlarm(item)) },
                     onRepeatDaysChange = {
-                        viewModel.onEvent(
+                        onEvent(
                             AlarmsEvent.ChangeAlarmRepeat(
                                 item,
                                 it
                             )
                         )
                     },
-                    onChangeVibrateClick = { viewModel.onEvent(AlarmsEvent.OnChangeVibrationClick(item)) }
+                    onChangeVibrateClick = { onEvent(AlarmsEvent.OnChangeVibrationClick(item)) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
         FloatingActionButton(
-            onClick = { viewModel.onEvent(AlarmsEvent.OnAddButtonClick) },
+            onClick = { onEvent(AlarmsEvent.OnAddButtonClick) },
             modifier = Modifier
                 .size(105.dp)
                 .align(Alignment.BottomCenter)

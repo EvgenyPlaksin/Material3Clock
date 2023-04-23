@@ -1,11 +1,6 @@
 package com.lnight.material3clock.core_ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -15,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,9 +52,15 @@ fun AlarmBottomNavigation(navController: NavHostController) {
                 alwaysShowLabel = false,
                 selected = isSelected,
                 onClick = {
-                    if (navController.currentDestination?.route != item.route) {
-                        navController.popBackStack(navController.graph.startDestinationId, false)
-                        navController.navigate(item.route)
+                    navController.navigate(item.route) {
+
+                        navController.graph.startDestinationRoute?.let { screen_route ->
+                            popUpTo(screen_route) {
+                                saveState = true
+                            }
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             )

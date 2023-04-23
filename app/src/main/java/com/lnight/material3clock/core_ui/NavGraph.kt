@@ -5,17 +5,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.lnight.material3clock.alarm_feature.presentation.AlarmScreen
+import com.lnight.material3clock.alarm_feature.presentation.AlarmViewModel
 import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmScreen
+import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmViewModel
 import com.lnight.material3clock.clock_feature.presentation.ClockScreen
 import com.lnight.material3clock.core.BottomNavItem
 import com.lnight.material3clock.core.Route
@@ -24,12 +24,16 @@ import com.lnight.material3clock.core.Route
 fun NavGraph(navController: NavHostController, paddingValues: PaddingValues = PaddingValues()) {
     NavHost(
         navController = navController,
-        startDestination = Route.AlarmScreen.route,
+        startDestination = BottomNavItem.Alarm.route,
         modifier = Modifier.padding(paddingValues)
     ) {
-        navigation(startDestination = BottomNavItem.Alarm.route, route = Route.AlarmScreen.route) {
-            composable(BottomNavItem.Alarm.route) {
-                AlarmScreen()
+        composable(BottomNavItem.Alarm.route) {
+                val viewModel = hiltViewModel<AlarmViewModel>()
+                AlarmScreen(
+                    state = viewModel.state,
+                    uiEvent = viewModel.uiEvent,
+                    onEvent = viewModel::onEvent
+                )
             }
             composable(
                 Route.CancelAlarmScreen.route + "/{id}",
@@ -45,14 +49,18 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues = Pa
                         defaultValue = -1
                     }
                 )
-            ) childComposable@ {
-                val id = it.arguments?.getInt("id") ?: return@childComposable
+            ) {
+                val id = it.arguments?.getInt("id") ?: return@composable
+                val viewModel = hiltViewModel<StopAlarmViewModel>()
+
                 StopAlarmScreen(
                     id = id,
-                    navController = navController
+                    navController = navController,
+                    state = viewModel.state,
+                    uiEvent = viewModel.uiEvent,
+                    onEvent = viewModel::onEvent
                 )
             }
-        }
         composable(BottomNavItem.Clock.route) {
             ClockScreen()
         }
