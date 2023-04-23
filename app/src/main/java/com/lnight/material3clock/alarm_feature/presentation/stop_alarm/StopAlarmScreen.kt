@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,7 @@ import com.lnight.material3clock.R
 import com.lnight.material3clock.alarm_feature.receivers.AlarmReceiver.Companion.shouldUpdateState
 import com.lnight.material3clock.core.activity
 import com.lnight.material3clock.core.toLocalDateTime
+import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import kotlinx.coroutines.flow.Flow
 import java.io.IOException
 
@@ -33,14 +35,16 @@ fun StopAlarmScreen(
     navController: NavController,
     state: StopAlarmState,
     uiEvent: Flow<UiEvent>,
-    onEvent: (AlarmStopEvent) -> Unit
+    onEvent: (AlarmStopEvent) -> Unit,
+    isStopScreen: MutableState<Boolean>
 ) {
     val item = state.item
 
     val context = LocalContext.current
-    val time = (item?.timestamp ?: 0).toLocalDateTime()
+    val time = (item?.timestamp ?: 0).toLocalDateTime().toLocalTime().noSeconds()
 
     LaunchedEffect(key1 = true) {
+        isStopScreen.value = true
         val sound = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.alarm_sound)
         val mediaPlayer = MediaPlayer()
         mediaPlayer.setAudioAttributes(
@@ -62,6 +66,7 @@ fun StopAlarmScreen(
             when (event) {
                 UiEvent.NavigateUp -> {
                     shouldUpdateState = true
+                    isStopScreen.value = false
                     mediaPlayer.stop()
                     if (!navController.navigateUp()) {
                         context.activity?.finish()
@@ -69,6 +74,7 @@ fun StopAlarmScreen(
                 }
                 is UiEvent.Navigate -> {
                     shouldUpdateState = true
+                    isStopScreen.value = false
                     mediaPlayer.stop()
                     navController.navigate(event.route)
                 }

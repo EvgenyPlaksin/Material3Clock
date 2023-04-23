@@ -12,6 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
@@ -31,6 +33,7 @@ class MainActivity : ComponentActivity() {
         notificationManager.cancelAll()
         setContent {
             val rootNavController = rememberNavController()
+            val isStopScreen = rememberSaveable { mutableStateOf(false) }
 
             Material3ClockTheme {
                     val systemUiController = rememberSystemUiController()
@@ -50,11 +53,12 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             modifier = Modifier
                                 .fillMaxSize(),
-                            bottomBar = { AlarmBottomNavigation(navController = rootNavController) }
+                            bottomBar = { if(isStopScreen.value) Unit else AlarmBottomNavigation(navController = rootNavController) }
                         ) {
                             NavGraph(
                                 navController = rootNavController,
-                                paddingValues = PaddingValues(bottom = it.calculateBottomPadding())
+                                paddingValues = PaddingValues(bottom = it.calculateBottomPadding()),
+                                isStopScreen = isStopScreen
                             )
                         }
                     }
@@ -62,3 +66,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

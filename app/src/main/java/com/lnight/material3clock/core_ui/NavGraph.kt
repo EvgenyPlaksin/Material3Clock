@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -17,11 +18,17 @@ import com.lnight.material3clock.alarm_feature.presentation.AlarmViewModel
 import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmScreen
 import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmViewModel
 import com.lnight.material3clock.clock_feature.presentation.ClockScreen
+import com.lnight.material3clock.clock_feature.presentation.StopwatchScreen
 import com.lnight.material3clock.core.BottomNavItem
 import com.lnight.material3clock.core.Route
+import com.lnight.material3clock.timer_feature.presentation.TimerScreen
 
 @Composable
-fun NavGraph(navController: NavHostController, paddingValues: PaddingValues = PaddingValues()) {
+fun NavGraph(
+    navController: NavHostController,
+    paddingValues: PaddingValues = PaddingValues(),
+    isStopScreen: MutableState<Boolean>
+) {
     NavHost(
         navController = navController,
         startDestination = BottomNavItem.Alarm.route,
@@ -58,11 +65,18 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues = Pa
                     navController = navController,
                     state = viewModel.state,
                     uiEvent = viewModel.uiEvent,
-                    onEvent = viewModel::onEvent
+                    onEvent = viewModel::onEvent,
+                    isStopScreen = isStopScreen
                 )
             }
         composable(BottomNavItem.Clock.route) {
             ClockScreen()
+        }
+        composable(BottomNavItem.Timer.route) {
+            TimerScreen()
+        }
+        composable(BottomNavItem.Stopwatch.route) {
+            StopwatchScreen()
         }
     }
 }

@@ -59,7 +59,10 @@ fun AlarmBottomNavigation(navController: NavHostController) {
             .height(96.dp)
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+        var currentRoute = navBackStackEntry?.destination?.route
+        if(items.find { it.route == currentRoute } == null) {
+            currentRoute = items.first().route
+        }
         items.forEach { item ->
             val isSelected = currentRoute == item.route
             CustomNavItem(
