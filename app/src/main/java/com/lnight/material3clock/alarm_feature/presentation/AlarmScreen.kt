@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.lnight.material3clock.alarm_feature.presentation.components.Alarm
 import com.lnight.material3clock.alarm_feature.presentation.components.RequestNotificationsPermission
-import com.lnight.material3clock.alarm_feature.presentation.components.TitleSection
+import com.lnight.material3clock.core_ui.TitleSection
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate

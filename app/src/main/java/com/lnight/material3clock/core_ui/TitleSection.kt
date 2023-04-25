@@ -1,4 +1,4 @@
-package com.lnight.material3clock.alarm_feature.presentation.components
+package com.lnight.material3clock.core_ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
