@@ -1,5 +1,6 @@
 package com.lnight.material3clock.clock_feature.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lnight.material3clock.clock_feature.presentation.components.ClockText
 import com.lnight.material3clock.core_ui.TitleSection
 import com.lnight.material3clock.ui.theme.Material3ClockTheme
@@ -46,9 +49,9 @@ fun ClockScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TitleSection(
-                titleText = "Alarm",
+                titleText = "Clock",
                 titleShadow = 0.dp,
-                titleSectionAlpha = ContentAlpha.medium,
+                titleSectionAlpha = ContentAlpha.high,
                 modifier = Modifier.weight(1f)
             )
             Box(
@@ -64,13 +67,20 @@ fun ClockScreen(
                 DropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
-                    offset = DpOffset(10.dp, 0.dp)
+                    offset = DpOffset(10.dp, 0.dp),
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     DropdownMenuItem(onClick = { /*TODO*/ }, text = {
-                        Text(text = "Screen saver")
+                        Text(
+                            text = "Screen saver",
+                            fontSize = 16.sp
+                        )
                     })
                     DropdownMenuItem(onClick = { /*TODO*/ }, text = {
-                        Text(text = "Settings")
+                        Text(
+                            text = "Settings",
+                            fontSize = 16.sp
+                        )
                     })
                 }
             }

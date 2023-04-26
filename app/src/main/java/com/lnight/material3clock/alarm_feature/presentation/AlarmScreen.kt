@@ -1,7 +1,6 @@
 package com.lnight.material3clock.alarm_feature.presentation
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -74,9 +73,6 @@ fun AlarmScreen(
             isAlarmsOnStartPosition = !listState.canScrollBackward
         }
     }
-    val titleSectionAlpha by animateFloatAsState(
-        targetValue = if (isAlarmsOnStartPosition) ContentAlpha.medium else ContentAlpha.high
-    )
     val titleShadow by animateDpAsState(
         targetValue = if (isAlarmsOnStartPosition) 0.dp else 10.dp
     )
@@ -199,7 +195,7 @@ fun AlarmScreen(
         TitleSection(
             titleText = "Alarm",
             titleShadow = titleShadow,
-            titleSectionAlpha = titleSectionAlpha
+            titleSectionAlpha = ContentAlpha.high
         )
         LazyColumn(
             modifier = Modifier
