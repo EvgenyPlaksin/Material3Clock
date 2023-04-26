@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import com.lnight.material3clock.alarm_feature.domain.model.AlarmItem
 import com.lnight.material3clock.alarm_feature.presentation.AlarmStateItem
 import kotlinx.coroutines.CoroutineScope
@@ -89,4 +91,8 @@ fun Long.toLocalDateTime(): LocalDateTime {
         Instant.ofEpochSecond(this),
         TimeZone.getDefault().toZoneId()
     )
+}
+
+fun Color.dim(fraction: Float): Color {
+    return lerp(this, Color(0xFF292929), fraction)
 }

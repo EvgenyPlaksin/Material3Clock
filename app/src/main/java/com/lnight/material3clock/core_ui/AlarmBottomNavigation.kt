@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lnight.material3clock.R
 import com.lnight.material3clock.core.BottomNavItem
+import com.lnight.material3clock.core.dim
 import com.lnight.material3clock.ui.theme.Material3ClockTheme
 
 @Composable
@@ -53,7 +55,7 @@ fun AlarmBottomNavigation(navController: NavHostController) {
         BottomNavItem.Stopwatch
     )
     CustomBottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.onSecondary,
+        backgroundColor = if(isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary.dim(0.4f) else MaterialTheme.colorScheme.onSecondary,
         contentColor = MaterialTheme.colorScheme.secondaryContainer,
         modifier = Modifier
             .height(96.dp)

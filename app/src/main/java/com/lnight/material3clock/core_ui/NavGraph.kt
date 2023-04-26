@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -18,6 +19,7 @@ import com.lnight.material3clock.alarm_feature.presentation.AlarmViewModel
 import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmScreen
 import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarmViewModel
 import com.lnight.material3clock.clock_feature.presentation.ClockScreen
+import com.lnight.material3clock.clock_feature.presentation.ClockViewModel
 import com.lnight.material3clock.clock_feature.presentation.StopwatchScreen
 import com.lnight.material3clock.core.BottomNavItem
 import com.lnight.material3clock.core.Route
@@ -70,7 +72,10 @@ fun NavGraph(
                 )
             }
         composable(BottomNavItem.Clock.route) {
-            ClockScreen()
+            val viewModel = hiltViewModel<ClockViewModel>()
+            ClockScreen(
+               state = viewModel.state.collectAsState().value,
+            )
         }
         composable(BottomNavItem.Timer.route) {
             TimerScreen()

@@ -3,8 +3,10 @@ package com.lnight.material3clock.clock_feature.presentation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
@@ -24,11 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.lnight.material3clock.clock_feature.presentation.components.ClockText
 import com.lnight.material3clock.core_ui.TitleSection
 import com.lnight.material3clock.ui.theme.Material3ClockTheme
 
 @Composable
-fun ClockScreen() {
+fun ClockScreen(
+    state: ClockState
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,15 +75,23 @@ fun ClockScreen() {
                 }
             }
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        ClockText(
+            formattedTime = state.formattedTime,
+            formattedDate = state.formattedDate,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
     }
 }
 
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun ClockScreenPreview() {
     Material3ClockTheme {
-        ClockScreen()
+        ClockScreen(
+            state = ClockState()
+        )
     }
 }
