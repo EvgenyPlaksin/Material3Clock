@@ -39,7 +39,7 @@ fun NavGraph(
         composable(BottomNavItem.Alarm.route) {
                 val viewModel = hiltViewModel<AlarmViewModel>()
                 AlarmScreen(
-                    state = viewModel.state,
+                    state = viewModel.state.collectAsState().value,
                     uiEvent = viewModel.uiEvent,
                     onEvent = viewModel::onEvent
                 )
@@ -65,7 +65,7 @@ fun NavGraph(
                 StopAlarmScreen(
                     id = id,
                     navController = navController,
-                    state = viewModel.state,
+                    state = viewModel.state.collectAsState().value,
                     uiEvent = viewModel.uiEvent,
                     onEvent = viewModel::onEvent,
                     isStopScreen = isStopScreen

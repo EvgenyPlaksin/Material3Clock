@@ -2,6 +2,8 @@ package com.lnight.material3clock.clock_feature.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
+import com.lnight.material3clock.core.getFormattedDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -15,14 +17,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ClockViewModel @Inject constructor(
-
-): ViewModel() {
+    private val alarmUseCases: AlarmUseCases
+) : ViewModel() {
 
     private val _state = MutableStateFlow(ClockState())
     val state = _state.asStateFlow()
 
     init {
         startUpdatingTime()
+        getNextAlarm()
     }
 
     private fun startUpdatingTime() {
@@ -33,11 +36,31 @@ class ClockViewModel @Inject constructor(
                 val formattedDate = currentTime.format(DateTimeFormatter.ofPattern("EEE, MMM dd"))
                 _state.update {
                     it.copy(
-                    formattedTime = formattedTime,
-                    formattedDate = formattedDate
+                        formattedTime = formattedTime,
+                        formattedDate = formattedDate
                     )
                 }
                 delay(1000L)
+            }
+        }
+    }
+
+    private fun getNextAlarm() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                alarmUseCases.getAlarmsUseCase().collect{ alarms ->
+                    val nextAlarm = alarms.minByOrNull { it.timestamp }
+                    if (nextAlarm?.isActive == true) {
+                        _state.update {
+                            it.copy(
+                                nextAlarm = nextAlarm.getFormattedDateTime()
+                            )
+                        }
+                    } else {
+                        _state.update { it.copy(nextAlarm = null) }
+                    }
+                    delay(5000L)
+                }
             }
         }
     }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -45,6 +46,12 @@ fun AlarmStateItem.toAlarmItem(): AlarmItem {
         nextDay = nextDay?.name,
         shouldVibrate = shouldVibrate
     )
+}
+
+fun AlarmItem.getFormattedDateTime(): String {
+    val localDateTime = LocalDateTime.ofEpochSecond(timestamp, 0, ZoneId.systemDefault().rules.getOffset(LocalDateTime.now()))
+    val formatter = DateTimeFormatter.ofPattern("EEE HH:mm")
+    return localDateTime.format(formatter)
 }
 
 fun AlarmItem.toAlarmStateItem(): AlarmStateItem {

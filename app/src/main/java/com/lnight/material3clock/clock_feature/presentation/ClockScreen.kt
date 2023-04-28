@@ -89,6 +89,7 @@ fun ClockScreen(
         ClockText(
             formattedTime = state.formattedTime,
             formattedDate = state.formattedDate,
+            nextAlarm = state.nextAlarm,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }

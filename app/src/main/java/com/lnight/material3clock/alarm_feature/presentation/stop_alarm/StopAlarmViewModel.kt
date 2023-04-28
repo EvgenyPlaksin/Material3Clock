@@ -1,8 +1,5 @@
 package com.lnight.material3clock.alarm_feature.presentation.stop_alarm
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
@@ -10,7 +7,10 @@ import com.lnight.material3clock.alarm_feature.domain.use_case.AlarmUseCases
 import com.lnight.material3clock.core.BottomNavItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -22,8 +22,8 @@ class StopAlarmViewModel @Inject constructor(
     private val alarmUseCases: AlarmUseCases
 ): ViewModel() {
 
-    var state by mutableStateOf(StopAlarmState())
-        private set
+    private val _state = MutableStateFlow(StopAlarmState())
+    val state = _state.asStateFlow()
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -66,7 +66,7 @@ class StopAlarmViewModel @Inject constructor(
                         _uiEvent.send(UiEvent.Navigate(BottomNavItem.Alarm.route))
                         return@launch
                     }
-                    state = state.copy(item = item)
+                    _state.update { it.copy(item = item) }
                 }
             }
         }

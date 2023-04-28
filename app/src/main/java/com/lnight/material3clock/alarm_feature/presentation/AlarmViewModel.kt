@@ -1,8 +1,5 @@
 package com.lnight.material3clock.alarm_feature.presentation
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lnight.material3clock.alarm_feature.data.alarm_scheduler.AlarmScheduler
@@ -13,9 +10,12 @@ import com.lnight.material3clock.core.toAlarmStateItem
 import com.marosseleng.compose.material3.datetimepickers.time.domain.noSeconds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -27,8 +27,8 @@ class AlarmViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler
 ) : ViewModel() {
 
-    var state by mutableStateOf(AlarmState())
-        private set
+    private val _state = MutableStateFlow(AlarmState())
+    val state = _state.asStateFlow()
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -45,7 +45,7 @@ class AlarmViewModel @Inject constructor(
                         repeatDays = event.repeatDays,
                         nextDay = event.repeatDays.firstOrNull()
                     )
-                    val newList = state.alarmStateItems.map {
+                    val newList = _state.value.alarmStateItems.map {
                         if (it == event.item) {
                             it.copy(
                                 repeatDays = event.repeatDays,
@@ -53,7 +53,7 @@ class AlarmViewModel @Inject constructor(
                             )
                         } else it
                     }
-                    state = state.copy(alarmStateItems = newList)
+                    _state.update { it.copy(alarmStateItems = newList) }
                     val newAlarmItem = newItem.toAlarmItem()
                     alarmUseCases.insertAlarmUseCase(newAlarmItem)
                 }
@@ -73,41 +73,45 @@ class AlarmViewModel @Inject constructor(
             AlarmsEvent.OnAddButtonClick -> {
                 viewModelScope.launch {
                     val time = LocalTime.now().plusMinutes(5).noSeconds()
-                    state = state.copy(
-                        timePickerData = state.timePickerData.copy(
-                            initialTime = time,
-                            eventType = TimePickerEvents.CreateAlarm
+                    _state.update {
+                        it.copy(
+                            timePickerData = it.timePickerData.copy(
+                                initialTime = time,
+                                eventType = TimePickerEvents.CreateAlarm
+                            )
                         )
-                    )
+                    }
                     _uiEvent.send(UiEvent.ShowTimePickerDialog)
                 }
             }
             is AlarmsEvent.OnAlarmTimeClick -> {
                 viewModelScope.launch {
                     val time = event.item.dateTime.toLocalTime().noSeconds()
-                    state = state.copy(
-                        timePickerData = state.timePickerData.copy(
-                            initialTime = time,
-                            eventType = TimePickerEvents.UpdateAlarmTime(item = event.item)
+                    _state.update {
+                        it.copy(
+                            timePickerData = it.timePickerData.copy(
+                                initialTime = time,
+                                eventType = TimePickerEvents.UpdateAlarmTime(item = event.item)
+                            )
                         )
-                    )
+                    }
                     _uiEvent.send(UiEvent.ShowTimePickerDialog)
                 }
             }
             is AlarmsEvent.ToggleDetailsSection -> {
-                val newList = state.alarmStateItems.map {
+                val newList = state.value.alarmStateItems.map {
                     if (it == event.item) {
                         it.copy(isDetailsVisible = !it.isDetailsVisible)
                     } else if (!event.item.isDetailsVisible) {
                         it.copy(isDetailsVisible = false)
                     } else it
                 }
-                state = state.copy(alarmStateItems = newList)
+                _state.update { it.copy(alarmStateItems = newList) }
             }
             is AlarmsEvent.TurnOnOffAlarm -> {
                 viewModelScope.launch {
                     val newItem = event.item.copy(isActive = !event.item.isActive)
-                    val newList = state.alarmStateItems.map {
+                    val newList = state.value.alarmStateItems.map {
                         if (it == event.item) {
                             val newTime = if(it.dateTime.isBefore(LocalDateTime.now()) && !it.isActive) it.dateTime.plusDays(1) else it.dateTime
                             it.copy(
@@ -116,7 +120,7 @@ class AlarmViewModel @Inject constructor(
                             )
                         } else it
                     }
-                    state = state.copy(alarmStateItems = newList)
+                    _state.update { it.copy(alarmStateItems = newList) }
                     val newAlarmItem = newItem.toAlarmItem()
                     if(newAlarmItem.isActive) {
                         alarmScheduler.schedule(newAlarmItem)
@@ -132,24 +136,26 @@ class AlarmViewModel @Inject constructor(
             }
             is AlarmsEvent.OnLabelClick -> {
                 viewModelScope.launch {
-                    state = state.copy(
-                        changeLabelData = ChangeLabelData(
-                            item = event.item,
-                            initialText = event.item.label
+                    _state.update {
+                        it.copy(
+                            changeLabelData = ChangeLabelData(
+                                item = event.item,
+                                initialText = event.item.label
+                            )
                         )
-                    )
+                    }
                     _uiEvent.send(UiEvent.ShowChangeLabelDialog)
                 }
             }
             is AlarmsEvent.OnLabelChange -> {
                 viewModelScope.launch {
                     val newItem = event.item.copy(label = event.label.ifBlank { null })
-                    val newList = state.alarmStateItems.map {
+                    val newList = state.value.alarmStateItems.map {
                         if (it == event.item) {
                             it.copy(label = event.label.ifBlank { null })
                         } else it
                     }
-                    state = state.copy(alarmStateItems = newList)
+                    _state.update { it.copy(alarmStateItems = newList) }
                     val newAlarmItem = newItem.toAlarmItem()
                     alarmUseCases.insertAlarmUseCase(newAlarmItem)
                 }
@@ -157,12 +163,12 @@ class AlarmViewModel @Inject constructor(
             is AlarmsEvent.OnChangeVibrationClick -> {
                 viewModelScope.launch {
                     val newItem = event.item.copy(shouldVibrate = !event.item.shouldVibrate)
-                    val newList = state.alarmStateItems.map {
+                    val newList = state.value.alarmStateItems.map {
                         if (it == event.item) {
                             it.copy(shouldVibrate = !it.shouldVibrate)
                         } else it
                     }
-                    state = state.copy(alarmStateItems = newList)
+                    _state.update { it.copy(alarmStateItems = newList) }
                     val newAlarmItem = newItem.toAlarmItem()
                     alarmUseCases.insertAlarmUseCase(newAlarmItem)
                 }
@@ -174,12 +180,14 @@ class AlarmViewModel @Inject constructor(
         alarmUseCases.getAlarmsUseCase().onEach { alarms ->
             if (shouldUpdateState) {
                 val alarmsState = alarms.map { it.toAlarmStateItem() }
-                if(state.alarmStateItems.lastOrNull() != alarmsState.lastOrNull()) {
+                if(state.value.alarmStateItems.lastOrNull() != alarmsState.lastOrNull()) {
                     alarmsState.lastOrNull()?.toAlarmItem()?.let { alarmScheduler.schedule(it) }
                 }
-                state = state.copy(
-                    alarmStateItems = alarmsState
-                )
+                _state.update {
+                    it.copy(
+                        alarmStateItems = alarmsState
+                    )
+                }
                 shouldUpdateState = false
             }
         }.launchIn(viewModelScope)
