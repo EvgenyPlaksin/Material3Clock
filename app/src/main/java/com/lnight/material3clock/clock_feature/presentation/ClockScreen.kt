@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,14 +30,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.lnight.material3clock.clock_feature.presentation.components.ClockText
 import com.lnight.material3clock.core_ui.TitleSection
 import com.lnight.material3clock.ui.theme.Material3ClockTheme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun ClockScreen(
-    state: ClockState
+    state: ClockState,
+    navController: NavHostController,
+    uiEvent: Flow<UiEvent>,
+    onEvent: (ClockScreenEvent) -> Unit
 ) {
+
+    LaunchedEffect(key1 = true) {
+        uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.Navigate -> {
+                    navController.navigate(event.route)
+                }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +89,7 @@ fun ClockScreen(
                     offset = DpOffset(10.dp, 0.dp),
                     modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    DropdownMenuItem(onClick = { /*TODO*/ }, text = {
+                    DropdownMenuItem(onClick = { onEvent(ClockScreenEvent.OnScreenSaverClick) }, text = {
                         Text(
                             text = "Screen saver",
                             fontSize = 16.sp
@@ -102,7 +121,10 @@ fun ClockScreen(
 fun ClockScreenPreview() {
     Material3ClockTheme {
         ClockScreen(
-            state = ClockState()
+            state = ClockState(),
+            navController = rememberNavController(),
+            uiEvent = MutableStateFlow(UiEvent.Navigate("test")),
+            onEvent = {}
         )
     }
 }

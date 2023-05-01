@@ -21,6 +21,8 @@ import com.lnight.material3clock.alarm_feature.presentation.stop_alarm.StopAlarm
 import com.lnight.material3clock.clock_feature.presentation.ClockScreen
 import com.lnight.material3clock.clock_feature.presentation.ClockViewModel
 import com.lnight.material3clock.clock_feature.presentation.StopwatchScreen
+import com.lnight.material3clock.clock_feature.presentation.screen_saver.BatterySaverScreen
+import com.lnight.material3clock.clock_feature.presentation.screen_saver.BatterySaverViewModel
 import com.lnight.material3clock.core.BottomNavItem
 import com.lnight.material3clock.core.Route
 import com.lnight.material3clock.timer_feature.presentation.TimerScreen
@@ -29,7 +31,7 @@ import com.lnight.material3clock.timer_feature.presentation.TimerScreen
 fun NavGraph(
     navController: NavHostController,
     paddingValues: PaddingValues = PaddingValues(),
-    isStopScreen: MutableState<Boolean>
+    shouldShowBottomNav: MutableState<Boolean>
 ) {
     NavHost(
         navController = navController,
@@ -68,13 +70,16 @@ fun NavGraph(
                     state = viewModel.state.collectAsState().value,
                     uiEvent = viewModel.uiEvent,
                     onEvent = viewModel::onEvent,
-                    isStopScreen = isStopScreen
+                    shouldShowBottomNav = shouldShowBottomNav
                 )
             }
         composable(BottomNavItem.Clock.route) {
             val viewModel = hiltViewModel<ClockViewModel>()
             ClockScreen(
                state = viewModel.state.collectAsState().value,
+                navController = navController,
+                uiEvent = viewModel.uiEvent,
+                onEvent = viewModel::onEvent
             )
         }
         composable(BottomNavItem.Timer.route) {
@@ -82,6 +87,17 @@ fun NavGraph(
         }
         composable(BottomNavItem.Stopwatch.route) {
             StopwatchScreen()
+        }
+        composable(Route.BatterySaverScreen.route) {
+            val viewModel = hiltViewModel<BatterySaverViewModel>()
+
+            BatterySaverScreen(
+                state = viewModel.state.collectAsState().value,
+                navController = navController,
+                shouldShowBottomNav = shouldShowBottomNav,
+                uiEvent = viewModel.uiEvent,
+                onEvent = viewModel::onEvent
+            )
         }
     }
 }

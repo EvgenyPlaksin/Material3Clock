@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
         notificationManager.cancelAll()
         setContent {
             val rootNavController = rememberNavController()
-            val isStopScreen = rememberSaveable { mutableStateOf(false) }
+            val shouldShowBottomNav = rememberSaveable { mutableStateOf(true) }
 
             Material3ClockTheme {
                     val systemUiController = rememberSystemUiController()
@@ -53,12 +53,12 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             modifier = Modifier
                                 .fillMaxSize(),
-                            bottomBar = { if(isStopScreen.value) Unit else AlarmBottomNavigation(navController = rootNavController) }
+                            bottomBar = { if(!shouldShowBottomNav.value) Unit else AlarmBottomNavigation(navController = rootNavController) }
                         ) {
                             NavGraph(
                                 navController = rootNavController,
                                 paddingValues = PaddingValues(bottom = it.calculateBottomPadding()),
-                                isStopScreen = isStopScreen
+                                shouldShowBottomNav = shouldShowBottomNav
                             )
                         }
                     }

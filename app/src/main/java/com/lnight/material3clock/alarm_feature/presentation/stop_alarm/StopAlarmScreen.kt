@@ -3,6 +3,7 @@ package com.lnight.material3clock.alarm_feature.presentation.stop_alarm
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -36,15 +37,22 @@ fun StopAlarmScreen(
     state: StopAlarmState,
     uiEvent: Flow<UiEvent>,
     onEvent: (AlarmStopEvent) -> Unit,
-    isStopScreen: MutableState<Boolean>
+    shouldShowBottomNav: MutableState<Boolean>
 ) {
     val item = state.item
 
     val context = LocalContext.current
     val time = (item?.timestamp ?: 0).toLocalDateTime().toLocalTime().noSeconds()
 
+    if(item != null) {
+        BackHandler(true) {
+            onEvent(AlarmStopEvent.Stop(item))
+        }
+    }
+
+
     LaunchedEffect(key1 = true) {
-        isStopScreen.value = true
+        shouldShowBottomNav.value = false
         val sound = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.alarm_sound)
         val mediaPlayer = MediaPlayer()
         mediaPlayer.setAudioAttributes(
@@ -66,7 +74,7 @@ fun StopAlarmScreen(
             when (event) {
                 UiEvent.NavigateUp -> {
                     shouldUpdateState = true
-                    isStopScreen.value = false
+                    shouldShowBottomNav.value = false
                     mediaPlayer.stop()
                     if (!navController.navigateUp()) {
                         context.activity?.finish()
@@ -74,7 +82,7 @@ fun StopAlarmScreen(
                 }
                 is UiEvent.Navigate -> {
                     shouldUpdateState = true
-                    isStopScreen.value = false
+                    shouldShowBottomNav.value = false
                     mediaPlayer.stop()
                     navController.navigate(event.route)
                 }
