@@ -23,6 +23,7 @@ import com.lnight.material3clock.clock_feature.presentation.ClockViewModel
 import com.lnight.material3clock.clock_feature.presentation.StopwatchScreen
 import com.lnight.material3clock.clock_feature.presentation.screen_saver.BatterySaverScreen
 import com.lnight.material3clock.clock_feature.presentation.screen_saver.BatterySaverViewModel
+import com.lnight.material3clock.clock_feature.presentation.settings.SettingsScreen
 import com.lnight.material3clock.core.BottomNavItem
 import com.lnight.material3clock.core.Route
 import com.lnight.material3clock.timer_feature.presentation.TimerScreen
@@ -98,6 +99,9 @@ fun NavGraph(
                 uiEvent = viewModel.uiEvent,
                 onEvent = viewModel::onEvent
             )
+        }
+        composable(Route.SettingsScreen.route) {
+            SettingsScreen()
         }
     }
 }
